@@ -15,6 +15,8 @@ import com.example.entity.User;
 import com.example.exception.CustomException;
 import com.example.service.LogService;
 import com.example.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -26,6 +28,7 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Api(tags = "用户接口")
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
@@ -55,6 +58,7 @@ public class UserController {
      * @param request
      * @return
      */
+    @ApiOperation(value = "登录接口")
     @PostMapping("/login")
     public Result<User> login(@RequestBody User user, HttpServletRequest request) {
         User res = userService.login(user);

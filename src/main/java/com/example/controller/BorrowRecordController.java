@@ -45,13 +45,31 @@ public class BorrowRecordController {
         return user;
     }
 
+    @ApiOperation(value = "申请借用接口")
     @PostMapping
-    public Result<?> save(@RequestBody BorrowRecord borrowRecord) {
-        return Result.success(borrowRecordService.save(borrowRecord));
+    public Result<?> requestBorrowGood(@RequestBody BorrowRecord borrowRecord) {
+        if (borrowRecord == null) {
+            throw new CustomException("-1", "参数错误");
+        }
+        return Result.success(borrowRecordService.createBorrowRecord(borrowRecord));
+    }
+
+    @ApiOperation(value = "归还商品接口")
+    @PostMapping("/{borrowRecordId}")
+    public Result<?> giveBackGood(@PathVariable Long borrowRecordId) {
+        if (borrowRecordId == null) {
+            throw new CustomException("-1", "参数错误");
+        }
+        BorrowRecord data = borrowRecordService.getById(borrowRecordId);
+        data.setBorrowStatus(2);
+        return Result.success(borrowRecordService.saveOrUpdate(data));
     }
 
     @PutMapping
     public Result<?> update(@RequestBody BorrowRecord borrowRecord) {
+        if (borrowRecord == null) {
+            throw new CustomException("-1", "参数错误");
+        }
         return Result.success(borrowRecordService.updateById(borrowRecord));
     }
 
@@ -73,8 +91,8 @@ public class BorrowRecordController {
 
     @GetMapping("/page")
     public Result<?> findPage(@RequestParam(required = false, defaultValue = "") String name,
-                                                @RequestParam(required = false, defaultValue = "1") Integer pageNum,
-                                                @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
+                              @RequestParam(required = false, defaultValue = "1") Integer pageNum,
+                              @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
         LambdaQueryWrapper<BorrowRecord> query = Wrappers.<BorrowRecord>lambdaQuery().orderByDesc(BorrowRecord::getId);
         if (StrUtil.isNotBlank(name)) {
             //query.like(BorrowRecord::getName, name);
