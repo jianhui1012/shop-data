@@ -17,7 +17,6 @@ public class User extends Model<User> {
     /**
      * 主键
      */
-    @ApiModelProperty(value = "id",hidden = true)
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
@@ -42,10 +41,10 @@ public class User extends Model<User> {
     @ApiModelProperty(value = "居住地址")
     private String address;
 
-    @ApiModelProperty(value = "年龄")
+    @ApiModelProperty(value = "年龄",example = "0")
     private Integer age;
 
-    @ApiModelProperty(value = "店铺id，身份是店铺老板才会有值，默认为空")
+    @ApiModelProperty(value = "店铺id，身份是店铺老板才会有值，默认为空",example = "0")
     private Integer  shopId;
 
     @ApiModelProperty(value = "角色",hidden = true)

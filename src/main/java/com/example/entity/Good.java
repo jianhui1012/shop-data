@@ -26,7 +26,7 @@ public class Good extends Model<Good> {
     /**
       * 物品类型 
       */
-    @ApiModelProperty(value = "物品类型")
+    @ApiModelProperty(value = "物品类型",example = "0")
     private Integer type;
 
     /**
@@ -44,12 +44,12 @@ public class Good extends Model<Good> {
     /***
      * 店铺id
      */
-    @ApiModelProperty(value = "店铺id")
-    private String shopId;
+    @ApiModelProperty(value = "店铺id",example = "0")
+    private Long shopId;
 
-    @ApiModelProperty(value = "商品库存")
+    @ApiModelProperty(value = "商品库存",example = "0")
     private Long stock;
 
-    @ApiModelProperty(value = "已借出数量")
+    @ApiModelProperty(value = "已借出数量",example = "0")
     private Long borrowCount;
 }

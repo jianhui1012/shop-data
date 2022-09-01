@@ -6,8 +6,11 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.common.Result;
+import com.example.common.utils.KeyConst;
 import com.example.entity.BorrowRecord;
+import com.example.entity.Good;
 import com.example.service.BorrowRecordService;
 import com.example.entity.User;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -15,6 +18,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 import com.example.exception.CustomException;
 import cn.hutool.core.util.StrUtil;
@@ -54,14 +58,18 @@ public class BorrowRecordController {
         return Result.success(borrowRecordService.createBorrowRecord(borrowRecord));
     }
 
-    @ApiOperation(value = "归还商品接口")
+    @ApiOperation(value = "归还商品/审核借用的接口-更新借用状态 ")
     @PostMapping("/{borrowRecordId}")
-    public Result<?> giveBackGood(@PathVariable Long borrowRecordId) {
-        if (borrowRecordId == null) {
+    public Result<?> updateBorrowStatus(@PathVariable Long borrowRecordId, @ApiParam(value = "1-已借用，2-已归还 3-申请借用,等待店铺老板同意")
+    @RequestParam Integer status) {
+        if (borrowRecordId == null || status == null) {
             throw new CustomException("-1", "参数错误");
         }
         BorrowRecord data = borrowRecordService.getById(borrowRecordId);
-        data.setBorrowStatus(2);
+        if (status == KeyConst.STATUS_GIVE_BACK) {
+            data.setEndTime(new Date());
+        }
+        data.setBorrowStatus(status);
         return Result.success(borrowRecordService.saveOrUpdate(data));
     }
 
@@ -79,9 +87,19 @@ public class BorrowRecordController {
         return Result.success();
     }
 
-    @GetMapping("/{id}")
-    public Result<?> findById(@PathVariable Long id) {
-        return Result.success(borrowRecordService.getById(id));
+    @ApiOperation(value = "根据店铺id和借用状态来获取该店铺下所有的借用记录")
+    @GetMapping("/{shopId}")
+    public Result<?> getByShopIdAndStatus(@PathVariable Long shopId,@ApiParam(value = "status不传的话则获取该店铺下所有的借用记录 status:1-已借用，2-已归还 3-申请借用,等待店铺老板同意")
+    @RequestParam(required = false) Integer status) {
+        if (shopId == null) {
+            throw new CustomException("-1", "参数错误");
+        }
+        LambdaQueryWrapper<BorrowRecord> queryWrapper = Wrappers.<BorrowRecord>lambdaQuery().
+                eq(BorrowRecord::getShopId, shopId);
+        if (status != null) {
+            queryWrapper.eq(BorrowRecord::getBorrowStatus, status);
+        }
+        return Result.success(borrowRecordService.list(queryWrapper));
     }
 
     @GetMapping
