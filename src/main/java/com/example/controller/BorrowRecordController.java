@@ -50,7 +50,7 @@ public class BorrowRecordController {
     }
 
     @ApiOperation(value = "申请借用接口")
-    @PostMapping
+    @PostMapping("/requestBorrowGood")
     public Result<?> requestBorrowGood(@RequestBody BorrowRecord borrowRecord) {
         if (borrowRecord == null) {
             throw new CustomException("-1", "参数错误");
@@ -59,7 +59,7 @@ public class BorrowRecordController {
     }
 
     @ApiOperation(value = "归还商品/审核借用的接口-更新借用状态 ")
-    @PostMapping("/{borrowRecordId}")
+    @PostMapping("/updateBorrowStatus/{borrowRecordId}")
     public Result<?> updateBorrowStatus(@PathVariable Long borrowRecordId, @ApiParam(value = "1-已借用，2-已归还 3-申请借用,等待店铺老板同意")
     @RequestParam Integer status) {
         if (borrowRecordId == null || status == null) {
@@ -88,7 +88,7 @@ public class BorrowRecordController {
     }
 
     @ApiOperation(value = "根据店铺id和借用状态来获取该店铺下所有的借用记录")
-    @GetMapping("/{shopId}")
+    @GetMapping("/getByShopIdAndStatus/{shopId}")
     public Result<?> getByShopIdAndStatus(@PathVariable Long shopId,@ApiParam(value = "status不传的话则获取该店铺下所有的借用记录 status:1-已借用，2-已归还 3-申请借用,等待店铺老板同意")
     @RequestParam(required = false) Integer status) {
         if (shopId == null) {
