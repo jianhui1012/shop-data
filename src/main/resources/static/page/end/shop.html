@@ -27,13 +27,21 @@
 <!--    </el-upload>-->
 <!--    <el-button size='small' @click="exp" type="primary"  style="margin: 10px 0">导出</el-button>-->
     <el-table :data="tableData" border stripe style="width: 100%">
-        <el-table-column prop="id" label="ID" width="100"> </el-table-column>
+<!--        <el-table-column prop="id" label="ID" width="100"> </el-table-column>-->
         <el-table-column prop="name" label="店名"></el-table-column>
         <el-table-column prop="address" label="地址"></el-table-column>
         <el-table-column prop="phonename" label="联系人"></el-table-column>
         <el-table-column prop="phone" label="联系电话"></el-table-column>
-        <el-table-column prop="longitude" label="经度"></el-table-column>
-        <el-table-column prop="latitude" label="纬度"></el-table-column>
+<!--        <el-table-column prop="longitude" label="经度"></el-table-column>-->
+<!--        <el-table-column prop="latitude" label="纬度"></el-table-column>-->
+        <el-table-column label="店铺二维码" width="220">
+        <template slot-scope="scope">
+            <div class="link-container">
+                <el-button @click="createQRCode(scope.row)">下载二维码</el-button>
+                <div style="margin: 10px" :id="'code'+scope.row.id"></div>
+            </div>
+        </template>
+        </el-table-column>
 
         <el-table-column
           fixed="right"
@@ -91,12 +99,42 @@
             <el-button type="primary" @click="save">确 定</el-button>
         </div>
     </el-dialog>
+
+    <el-dialog title="店铺二维码" :visible.sync="dialogFormVisible" width="40%"
+               :close-on-click-modal="false">
+        <el-form :model="entity">
+            <el-form-item label="店名" label-width="120px">
+                <el-input v-model="entity.name" autocomplete="off" style="width: 80%"></el-input>
+            </el-form-item>
+            <el-form-item label="地址" label-width="120px">
+                <el-input v-model="entity.address" autocomplete="off" style="width: 80%"></el-input>
+            </el-form-item>
+            <el-form-item label="联系人" label-width="120px">
+                <el-input v-model="entity.phonename" autocomplete="off" style="width: 80%"></el-input>
+            </el-form-item>
+            <el-form-item label="联系电话" label-width="120px">
+                <el-input v-model="entity.phone" autocomplete="off" style="width: 80%"></el-input>
+            </el-form-item>
+            <el-form-item label="经度" label-width="120px">
+                <el-input v-model="entity.longitude" autocomplete="off" style="width: 80%"></el-input>
+            </el-form-item>
+            <el-form-item label="纬度" label-width="120px">
+                <el-input v-model="entity.latitude" autocomplete="off" style="width: 80%"></el-input>
+            </el-form-item>
+
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogFormVisible = false">取 消</el-button>
+            <el-button type="primary" @click="save">确 定</el-button>
+        </div>
+    </el-dialog>
 </div>
 
 <script src="../../js/jquery.min.js"></script>
 <script src="../../js/vue.min.js"></script>
 <script src="../../js/element.js"></script>
 <script src="../../js/tinymce/tinymce.min.js"></script>
+<script src="../../js/qrcode.js"></script>
 
 
 <script>
@@ -223,6 +261,34 @@
                         })
                     }
                 })
+            },
+            downloadQRCode (obj) {
+                let id = "code"+obj.id
+                let qrcode = document.getElementById(id);
+                let img = qrcode.getElementsByTagName('img')[0];
+                img.onload = function () {
+                    this.imgUrl = img.getAttribute("src");
+                    let link = document.createElement("a");
+                    link.setAttribute("href", this.imgUrl);
+                    link.setAttribute("download", obj.name+'.png')
+                    link.click();
+                }
+            },
+            createQRCode (obj) {
+                let id = "code"+obj.id
+                let url = location.origin+"?shopId="+obj.id;
+                let qrcodeDiv = document.getElementById(id)
+                qrcodeDiv.innerHTML = ""
+                let qrcode = new QRCode(qrcodeDiv, {
+                    text: url,
+                    width: 188, //生成的二维码的宽度
+                    height: 188, //生成的二维码的高度
+                    colorDark: "#666666", // 生成的二维码的深色部分
+                    colorLight: "#ffffff", //生成二维码的浅色部分
+                    correctLevel: QRCode.CorrectLevel.H
+                })
+                console.log(url)
+                this.downloadQRCode(obj)
             }
         }
     })
