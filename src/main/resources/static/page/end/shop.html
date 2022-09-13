@@ -276,7 +276,7 @@
             },
             createQRCode (obj) {
                 let id = "code"+obj.id
-                let url = location.origin+"?shopId="+obj.id;
+                let url = "http://121.199.53.182:9098/?id="+obj.id;
                 let qrcodeDiv = document.getElementById(id)
                 qrcodeDiv.innerHTML = ""
                 let qrcode = new QRCode(qrcodeDiv, {
