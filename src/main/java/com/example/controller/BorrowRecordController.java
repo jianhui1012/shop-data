@@ -62,15 +62,7 @@ public class BorrowRecordController {
     @PostMapping("/updateBorrowStatus/{borrowRecordId}")
     public Result<?> updateBorrowStatus(@PathVariable Long borrowRecordId, @ApiParam(value = "1-已借用，2-已归还 3-申请借用,等待店铺老板同意")
     @RequestParam Integer status) {
-        if (borrowRecordId == null || status == null) {
-            throw new CustomException("-1", "参数错误");
-        }
-        BorrowRecord data = borrowRecordService.getById(borrowRecordId);
-        if (status == KeyConst.STATUS_GIVE_BACK) {
-            data.setEndTime(new Date());
-        }
-        data.setBorrowStatus(status);
-        return Result.success(borrowRecordService.saveOrUpdate(data));
+        return Result.success(borrowRecordService.updateStatus(borrowRecordId,status));
     }
 
     @PutMapping

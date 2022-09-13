@@ -13,7 +13,9 @@ import com.example.entity.Permission;
 import com.example.exception.CustomException;
 import com.example.mapper.BorrowRecordMapper;
 import com.example.mapper.GoodMapper;
+import io.swagger.annotations.ApiParam;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -55,6 +57,32 @@ public class BorrowRecordService extends ServiceImpl<BorrowRecordMapper, BorrowR
             return this.save(borrowRecord);
         }
         return true;
+    }
+
+    public boolean updateStatus(Long borrowRecordId, Integer status) {
+        if (borrowRecordId == null || status == null) {
+            throw new CustomException("-1", "参数错误");
+        }
+        BorrowRecord data = getById(borrowRecordId);
+        if (status == KeyConst.STATUS_GIVE_BACK) {
+            data.setEndTime(new Date());
+        }
+        data.setBorrowStatus(status);
+        boolean result = saveOrUpdate(data);
+
+        Good good = goodMapper.selectOne(Wrappers.<Good>lambdaQuery().like(Good::getGoodId, data.getGoodsId()));
+        Long borrowCount = good.getBorrowCount();
+        //已借用并且是当前是请求借用状态
+        if (status == KeyConst.STATUS_BORROWED && data.getBorrowStatus() == KeyConst.STATUS_REQUEST_BORROW) {
+            //确认借用
+            good.setBorrowCount(--borrowCount);
+            result = retBool(goodMapper.updateById(good));
+        } else if (status == KeyConst.STATUS_GIVE_BACK && data.getBorrowStatus() == KeyConst.STATUS_BORROWED) {
+            //归还
+            good.setBorrowCount(++borrowCount);
+            result = retBool(goodMapper.updateById(good));
+        }
+        return result;
     }
 
     public Boolean createTakeRecord(BorrowRecord borrowRecord) {
