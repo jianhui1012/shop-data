@@ -76,9 +76,12 @@ public class GoodController {
         return Result.success(goodService.list());
     }
 
-    @GetMapping("/type")
-    public Result<?> findAllByType(@ApiParam(value = "物品类型，借用类型和享用类型") @RequestParam(defaultValue = "") String type) {
-        return Result.success(goodService.getShopListByType(type));
+    @GetMapping("/{shopId}/type")
+    public Result<?> findAllByType(@PathVariable Long shopId,@ApiParam(value = "物品类型，借用类型和享用类型") @RequestParam(defaultValue = "") String type) {
+        if (shopId == null) {
+            throw new CustomException("-1", "店铺id不能为空");
+        }
+        return Result.success(goodService.getShopListByType(shopId,type));
     }
 
     @GetMapping("/page")

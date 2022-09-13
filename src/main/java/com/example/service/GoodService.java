@@ -1,6 +1,8 @@
 package com.example.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.example.entity.BorrowRecord;
 import com.example.entity.Good;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.Shop;
@@ -35,8 +37,9 @@ public class GoodService extends ServiceImpl<GoodMapper, Good> {
         return retBool(goodMapper.updateById(good));
     }
 
-    public List<Good> getShopListByType(String type) {
-        return goodMapper.selectList(Wrappers.<Good>lambdaQuery().like(Good::getType, type));
+    public List<Good> getShopListByType(Long shopId,String type) {
+        return goodMapper.selectList(Wrappers.<Good>lambdaQuery().
+                eq(Good::getType, type).eq(Good::getShopId,shopId));
     }
 
 
