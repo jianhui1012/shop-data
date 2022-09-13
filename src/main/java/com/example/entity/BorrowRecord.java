@@ -1,5 +1,6 @@
 package com.example.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -62,8 +63,14 @@ public class BorrowRecord extends Model<BorrowRecord> {
     private Date endTime;
 
     /**
-      * 借用状态  1-已借用，2-已归还 3-申请借用,等待店铺老板同意 0-默认
+      * 借用状态  1-已借用，2-已归还 3-申请借用,等待店铺老板同意 4-享用 0-默认
       */
-    @ApiModelProperty(value = "借用状态, 1-已借用，2-已归还 3-申请借用,等待店铺老板同意 0-默认",example = "0")
+    @ApiModelProperty(value = "借用状态, 1-已借用，2-已归还 3-申请借用,等待店铺老板同意 4-享用 0-默认",example = "0")
     private Integer borrowStatus = 0;
+
+    /***
+     * 享用数量
+     */
+    @ApiModelProperty(value = "享用数量",example = "0")
+    private int takeCount = 0;
 }

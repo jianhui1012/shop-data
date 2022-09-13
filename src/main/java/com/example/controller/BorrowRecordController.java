@@ -171,4 +171,13 @@ public class BorrowRecordController {
         return Result.success();
     }
 
+    @ApiOperation(value = "登记接口")
+    @PostMapping("/requestTakeGood")
+    public Result<?> requestTakeGood(@RequestBody BorrowRecord borrowRecord) {
+        if (borrowRecord == null) {
+            throw new CustomException("-1", "参数错误");
+        }
+        return Result.success(borrowRecordService.createTakeRecord(borrowRecord));
+    }
+
 }

@@ -8,4 +8,6 @@ public class KeyConst {
     public static final int STATUS_GIVE_BACK = 2;
     //请求借用
     public static final int STATUS_REQUEST_BORROW = 3;
+    //享用
+    public static final int STATUS_TAKE = 4;
 }

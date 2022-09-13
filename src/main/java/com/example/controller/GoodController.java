@@ -14,7 +14,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 import com.example.exception.CustomException;
 import cn.hutool.core.util.StrUtil;
@@ -47,12 +47,12 @@ public class GoodController {
 
     @PostMapping
     public Result<?> save(@RequestBody Good good) {
-        return Result.success(goodService.save(good));
+        return Result.success(goodService.create(good));
     }
 
     @PutMapping
     public Result<?> update(@RequestBody Good good) {
-        return Result.success(goodService.updateById(good));
+        return Result.success(goodService.updateOne(good));
     }
 
     @DeleteMapping("/{id}")
@@ -62,7 +62,7 @@ public class GoodController {
     }
 
     @GetMapping("/{shopId}")
-    public Result<?> findByShopId(@PathVariable Long shopId) {
+    public Result<?> findById(@PathVariable Long shopId) {
         if (shopId == null) {
             throw new CustomException("-1", "店铺id不能为空");
         }
@@ -74,6 +74,11 @@ public class GoodController {
     @GetMapping
     public Result<?> findAll() {
         return Result.success(goodService.list());
+    }
+
+    @GetMapping("/type")
+    public Result<?> findAllByType(@ApiParam(value = "物品类型，借用类型和享用类型") @RequestParam(defaultValue = "") String type) {
+        return Result.success(goodService.getShopListByType(type));
     }
 
     @GetMapping("/page")
@@ -128,7 +133,7 @@ public class GoodController {
         for (List<Object> row : lists) {
             Good obj = new Good();
             obj.setName((String) row.get(1));
-            obj.setType(Integer.valueOf((String) row.get(2)));
+            obj.setType((String) row.get(2));
             obj.setGoodUrl((String) row.get(3));
             obj.setGoodId((String) row.get(4));
 
