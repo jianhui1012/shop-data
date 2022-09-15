@@ -28,18 +28,27 @@ public class GoodService extends ServiceImpl<GoodMapper, Good> {
         verification(good);
         good.setCreateTime(new Date());
         good.setUpdateTime(new Date());
+        String goodId = good.getGoodId();
+        int count = goodMapper.selectCount(Wrappers.<Good>lambdaQuery().eq(Good::getGoodId, goodId));
+        if (count > 0) {
+            throw new CustomException("-1", "商品编号已经存在");
+        }
         return retBool(goodMapper.insert(good));
     }
 
     public boolean updateOne(Good good) {
         verification(good);
         good.setUpdateTime(new Date());
+        int count = goodMapper.selectCount(Wrappers.<Good>lambdaQuery().eq(Good::getGoodId, good.getGoodId()));
+        if (count > 0) {
+            throw new CustomException("-1", "商品编号已经存在");
+        }
         return retBool(goodMapper.updateById(good));
     }
 
-    public List<Good> getShopListByType(Long shopId,String type) {
+    public List<Good> getShopListByType(Long shopId, String type) {
         return goodMapper.selectList(Wrappers.<Good>lambdaQuery().
-                eq(Good::getType, type).eq(Good::getShopId,shopId));
+                eq(Good::getType, type).eq(Good::getShopId, shopId));
     }
 
 
