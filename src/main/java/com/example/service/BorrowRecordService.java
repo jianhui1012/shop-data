@@ -75,11 +75,11 @@ public class BorrowRecordService extends ServiceImpl<BorrowRecordMapper, BorrowR
         //已借用并且是当前是请求借用状态
         if (status == KeyConst.STATUS_BORROWED && data.getBorrowStatus() == KeyConst.STATUS_REQUEST_BORROW) {
             //确认借用
-            good.setBorrowCount(--borrowCount);
+            good.setBorrowCount(++borrowCount);
             result = retBool(goodMapper.updateById(good));
         } else if (status == KeyConst.STATUS_GIVE_BACK && data.getBorrowStatus() == KeyConst.STATUS_BORROWED) {
             //归还
-            good.setBorrowCount(++borrowCount);
+            good.setBorrowCount(--borrowCount);
             result = retBool(goodMapper.updateById(good));
         }
         return result;
