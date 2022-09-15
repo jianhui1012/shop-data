@@ -39,10 +39,6 @@ public class GoodService extends ServiceImpl<GoodMapper, Good> {
     public boolean updateOne(Good good) {
         verification(good);
         good.setUpdateTime(new Date());
-        int count = goodMapper.selectCount(Wrappers.<Good>lambdaQuery().eq(Good::getGoodId, good.getGoodId()));
-        if (count > 0) {
-            throw new CustomException("-1", "商品编号已经存在");
-        }
         return retBool(goodMapper.updateById(good));
     }
 
