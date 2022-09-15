@@ -30,33 +30,30 @@ public class BorrowRecordService extends ServiceImpl<BorrowRecordMapper, BorrowR
     private GoodMapper goodMapper;
 
     public Boolean createBorrowRecord(BorrowRecord borrowRecord) {
-        String goodStr = borrowRecord.getGoodsId();
-        String[] ids = goodStr.split(",");
-        if (ArrayUtil.isEmpty(ids)) {
-            throw new CustomException("-1", "商品Id列表不能为空");
+        String id = borrowRecord.getGoodsId();
+        if (StrUtil.isEmpty(id)) {
+            throw new CustomException("-1", "商品Id不能为空");
         }
-        for (String id : ids) {
-            Good good = goodMapper.selectOne(Wrappers.<Good>lambdaQuery().like(Good::getGoodId, id));
-            if (good == null) {
-                throw new CustomException("-1", "借用的商品不存在");
-            }
-            //库存-借出数量小于等于0借用不足
-            Long sumCount = good.getStock();
-            Long borrowCount = good.getBorrowCount();
-            if (sumCount - borrowCount <= 0) {
-                throw new CustomException("-1", "可借用数量不足");
-            }
-            int size = borrowRecordMapper.selectCount(Wrappers.<BorrowRecord>lambdaQuery()
-                    .like(BorrowRecord::getGoodsId, id).in(BorrowRecord::getBorrowStatus,
-                            KeyConst.STATUS_BORROWED, KeyConst.STATUS_REQUEST_BORROW));
-            if (size > 0) {
-                throw new CustomException("-1", "该物品已经被占用");
-            }
-            borrowRecord.setStartTime(new Date());
-            borrowRecord.setBorrowStatus(KeyConst.STATUS_REQUEST_BORROW);
-            return this.save(borrowRecord);
+        Good good = goodMapper.selectOne(Wrappers.<Good>lambdaQuery().like(Good::getGoodId, id));
+        if (good == null) {
+            throw new CustomException("-1", "借用的商品不存在");
         }
-        return true;
+        //库存-借出数量小于等于0借用不足
+        Long sumCount = good.getStock();
+        Long borrowCount = good.getBorrowCount();
+        if (sumCount - borrowCount <= 0) {
+            throw new CustomException("-1", "可借用数量不足");
+        }
+        int size = borrowRecordMapper.selectCount(Wrappers.<BorrowRecord>lambdaQuery()
+                .eq(BorrowRecord::getGoodsId, id).in(BorrowRecord::getBorrowStatus,
+                        KeyConst.STATUS_BORROWED, KeyConst.STATUS_REQUEST_BORROW));
+        long reCount = good.getStock() - size;
+        if (reCount <= 0) {
+            throw new CustomException("-1", "该物品已经被借用完");
+        }
+        borrowRecord.setStartTime(new Date());
+        borrowRecord.setBorrowStatus(KeyConst.STATUS_REQUEST_BORROW);
+        return this.save(borrowRecord);
     }
 
     public boolean updateStatus(Long borrowRecordId, Integer status) {
