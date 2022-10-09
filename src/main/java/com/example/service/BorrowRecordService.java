@@ -34,7 +34,7 @@ public class BorrowRecordService extends ServiceImpl<BorrowRecordMapper, BorrowR
         if (StrUtil.isEmpty(id)) {
             throw new CustomException("-1", "商品Id不能为空");
         }
-        Good good = goodMapper.selectOne(Wrappers.<Good>lambdaQuery().like(Good::getGoodId, id));
+        Good good = goodMapper.selectOne(Wrappers.<Good>lambdaQuery().eq(Good::getGoodId, id));
         if (good == null) {
             throw new CustomException("-1", "借用的商品不存在");
         }
@@ -67,7 +67,7 @@ public class BorrowRecordService extends ServiceImpl<BorrowRecordMapper, BorrowR
         data.setBorrowStatus(status);
         boolean result = saveOrUpdate(data);
 
-        Good good = goodMapper.selectOne(Wrappers.<Good>lambdaQuery().like(Good::getGoodId, data.getGoodsId()));
+        Good good = goodMapper.selectOne(Wrappers.<Good>lambdaQuery().eq(Good::getGoodId, data.getGoodsId()));
         Long borrowCount = good.getBorrowCount();
         //已借用并且是当前是请求借用状态
         if (status == KeyConst.STATUS_BORROWED && data.getBorrowStatus() == KeyConst.STATUS_REQUEST_BORROW) {
@@ -89,7 +89,7 @@ public class BorrowRecordService extends ServiceImpl<BorrowRecordMapper, BorrowR
             throw new CustomException("-1", "商品Id列表不能为空");
         }
         for (String id : ids) {
-            Good good = goodMapper.selectOne(Wrappers.<Good>lambdaQuery().like(Good::getGoodId, id));
+            Good good = goodMapper.selectOne(Wrappers.<Good>lambdaQuery().eq(Good::getGoodId, id));
             if (good == null) {
                 throw new CustomException("-1", "借用的商品不存在");
             }

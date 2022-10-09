@@ -1,11 +1,5 @@
-# 🚀 毕设脚手架 x-admin
-
-B站所有的付费笔记、源码、代码生成器、成品项目等都打包在VIP群<br><br>
-5.5 - 5.31 活动价永久VIP打6折仅需 66 元，机不可失，时不再来！<br><br>
-如果需要可以加我钉钉：xiaqing1993，微信：xia_qing2012
-
 #### 🛫 介绍
-毕设脚手架工程，拿来即用，简单便捷，专为新手小白/毕设困难户打造，货真价实，童叟无欺
+脚手架工程改造而来，参考[x-admin](https://gitee.com/xqnode/x-admin.git)项目，原因么？有部分低代码的东西，可以简化不少东西。
 
 #### 👑 核心功能
 自动生成代码，可以根据数据库表自动生成后台增删改查接口和前台的html代码，不用写代码就能做出一个管理系统！
@@ -31,32 +25,27 @@ Java后台：SpringBoot 2.1.0 + Mybatis-plus+ hutool工具包 + Apache poi
 
     `https://gitee.com/xqnode/x-admin.git`
 
-    或者直接下载zip解压
-
-    ![下载zip](https://www.hualigs.cn/image/60a46392bf2a1.jpg)
-
-2. 使用idea打开x-admin文件夹导入工程
+2. 使用idea打开share-shop文件夹导入工程
 
 3. 配置maven，下载项目依赖
    
-   ![](https://www.hualigs.cn/image/60a463ef03442.jpg)
+   ![](pic/1.png)
    
-4. 新建数据库x-admin，执行x-admin.sql
+4. 新建数据库shareshop，执行shareshop_2022-10-09.sql
    
-   ![](https://www.hualigs.cn/image/60a4dec4a0c66.jpg)
-   ![](https://www.hualigs.cn/image/60a4645016b23.jpg)
+   ![](pic/2.png)
    
 5. 修改application.yml中的数据库密码
-   
-   ![](https://www.hualigs.cn/image/60a4648a823b5.jpg)
+
+   ![](pic/3.png)
    
 6. 项目依赖下载完成后，直接运行 Application 启动SpringBoot即可
-   
-   ![](https://www.hualigs.cn/image/60a4650b7d904.jpg)
+
+   ![](pic/4.png)
    
 7. 运行效果   
-   
-   ![](https://www.hualigs.cn/image/60a464bbed518.jpg)
+
+   ![](pic/5.png)
 
 #### 🛸 使用说明
 
@@ -67,54 +56,18 @@ Java后台：SpringBoot 2.1.0 + Mybatis-plus+ hutool工具包 + Apache poi
 
 登录
 
-![](https://www.hualigs.cn/image/60a465c7e7d79.jpg)
-
-注册
-
-![](https://www.hualigs.cn/image/60a46643d0549.jpg)
+![](pic/6.png)
 
 项目主页
 
-![](https://www.hualigs.cn/image/60a46662b622e.jpg)
+![](pic/7.png)
 
-用户管理
+店铺管理
 
-![](https://www.hualigs.cn/image/60a4675546135.jpg)
+![](pic/8.png)
 
-角色管理
+商品管理
 
-![](https://www.hualigs.cn/image/60a46755483e2.jpg)
+![](pic/9.png)
 
-菜单管理
-
-![](https://www.hualigs.cn/image/60a4675548b33.jpg)
-
-公告管理
-
-![](https://www.hualigs.cn/image/60a467ab49e80.jpg)
-
-日志管理
-
-![](https://www.hualigs.cn/image/60a467cfe30e7.jpg)
-
-在线留言（默认隐藏了）
-
-![](https://www.hualigs.cn/image/60a46805c6ea1.jpg)
-
-个人信息页
-
-![](https://www.hualigs.cn/image/60a4714bcc446.jpg)
-
-
-#### 🏎 问题交流
-付费QQ群：929481338  <br>
-提供x-admin项目问题解答、技术指导，分享实战项目，带大家做项目。<br>
-一次性收费99元，长期享受VIP待遇。
-
-我的微信：
-
-![](https://img-blog.csdnimg.cn/20201030174103759.jpg#pic_center)
-
-#### 🛹 请作者喝杯咖啡
-
-![](https://img-blog.csdnimg.cn/2021032107143511.jpg)
+...
