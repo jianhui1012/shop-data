@@ -23,7 +23,7 @@ Java后台：SpringBoot 2.1.0 + Mybatis-plus+ hutool工具包 + Apache poi
 
 1. 使用git下载本项目
 
-    `https://gitee.com/xqnode/x-admin.git`
+    `https://github.com/jianhui1012/share-shop`
 
 2. 使用idea打开share-shop文件夹导入工程
 
