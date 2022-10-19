@@ -87,23 +87,25 @@ public class BorrowRecordController {
             throw new CustomException("-1", "参数错误");
         }
         LambdaQueryWrapper<BorrowRecord> queryWrapper = Wrappers.<BorrowRecord>lambdaQuery().
-                eq(BorrowRecord::getShopId, shopId);
+                eq(BorrowRecord::getShopId, shopId).orderByDesc(BorrowRecord::getStartTime);
         if (status != null) {
-            queryWrapper.eq(BorrowRecord::getBorrowStatus, status);
+            queryWrapper = queryWrapper.eq(BorrowRecord::getBorrowStatus, status);
         }
         return Result.success(borrowRecordService.list(queryWrapper));
     }
 
     @GetMapping
     public Result<?> findAll() {
-        return Result.success(borrowRecordService.list());
+        LambdaQueryWrapper<BorrowRecord> queryWrapper = Wrappers.<BorrowRecord>lambdaQuery()
+                .orderByDesc(BorrowRecord::getStartTime);
+        return Result.success(borrowRecordService.list(queryWrapper));
     }
 
     @GetMapping("/page")
     public Result<?> findPage(@RequestParam(required = false, defaultValue = "") String name,
                               @RequestParam(required = false, defaultValue = "1") Integer pageNum,
                               @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
-        LambdaQueryWrapper<BorrowRecord> query = Wrappers.<BorrowRecord>lambdaQuery().orderByDesc(BorrowRecord::getId);
+        LambdaQueryWrapper<BorrowRecord> query = Wrappers.<BorrowRecord>lambdaQuery().orderByDesc(BorrowRecord::getStartTime);
         if (StrUtil.isNotBlank(name)) {
             //query.like(BorrowRecord::getName, name);
         }

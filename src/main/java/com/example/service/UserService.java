@@ -28,7 +28,7 @@ public class UserService extends ServiceImpl<UserMapper, User> {
     private PermissionService permissionService;
 
     public User login(User user) {
-        LambdaQueryWrapper<User> queryWrapper = Wrappers.<User>lambdaQuery().eq(User::getUsername, user.getUsername()).eq(User::getPassword, user.getPassword());
+        LambdaQueryWrapper<User> queryWrapper = Wrappers.<User>lambdaQuery().eq(User::getUsername, user.getUsername());
         User one = getOne(queryWrapper);
         if (one == null) {
             throw new CustomException("-1", "账号或密码错误");
