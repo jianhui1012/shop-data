@@ -12,25 +12,32 @@
 <body>
 <div id="wrapper" v-cloak>
     <div style="padding-bottom: 10px">
-            <el-breadcrumb separator-class="el-icon-arrow-right">
-                <el-breadcrumb-item @click.native="parent.changeIndex('index')">首页</el-breadcrumb-item>
-                <el-breadcrumb-item>商品管理</el-breadcrumb-item>
-            </el-breadcrumb>
-        </div>
+        <el-breadcrumb separator-class="el-icon-arrow-right">
+            <el-breadcrumb-item @click.native="parent.changeIndex('index')">首页</el-breadcrumb-item>
+            <el-breadcrumb-item>商品管理</el-breadcrumb-item>
+        </el-breadcrumb>
+    </div>
 
-        <div style="height: 1px; margin: 10px 0; background-color: white"></div>
+    <div style="height: 1px; margin: 10px 0; background-color: white"></div>
     <el-input size='small' v-model="search" style="width: 20%;" suffix-icon="el-icon-search" placeholder="请输入名称按回车搜索"
               @keyup.enter.native="loadTable"></el-input>
-    <el-button size='small' @click="add" type="primary"  style="margin: 10px 0">新增</el-button>
-<!--    <el-upload action="/files/upload" :on-success="successUpload" :show-file-list="false" style="display: inline-block">-->
-<!--        <el-button size='small' type="primary">导入</el-button>-->
-<!--    </el-upload>-->
-<!--    <el-button size='small' @click="exp" type="primary"  style="margin: 10px 0">导出</el-button>-->
+    <el-button size='small' @click="add" type="primary" style="margin: 10px 0">新增</el-button>
+    <!--    <el-upload action="/files/upload" :on-success="successUpload" :show-file-list="false" style="display: inline-block">-->
+    <!--        <el-button size='small' type="primary">导入</el-button>-->
+    <!--    </el-upload>-->
+    <!--    <el-button size='small' @click="exp" type="primary"  style="margin: 10px 0">导出</el-button>-->
     <el-table :data="tableData" border stripe style="width: 100%">
-        <el-table-column prop="id" label="ID" width="100"> </el-table-column>
+        <el-table-column prop="id" label="ID" width="100"></el-table-column>
         <el-table-column prop="name" label="物品名称"></el-table-column>
         <el-table-column prop="type" label="物品类型"></el-table-column>
-<!--        <el-table-column prop="goodUrl" label="物品图标"></el-table-column>-->
+        <el-table-column prop="goodUrl" label="物品图标">
+            <template slot-scope="scope">
+                <el-popover placement="top-start" title="" trigger="hover">
+                    <img :src="scope.row.goodUrl" alt="" style="width: 150px;height: 150px">
+                    <img slot="reference" :src="scope.row.goodUrl" style="width: 50px;height: 50px">
+                </el-popover>
+            </template>、
+        </el-table-column>
         <el-table-column prop="goodId" label="物品编号"></el-table-column>
         <el-table-column prop="shopId" label="店铺ID"></el-table-column>
         <el-table-column prop="createTime" label="创建时间"></el-table-column>
@@ -39,18 +46,19 @@
         <el-table-column prop="borrowCount" label="已借出数量"></el-table-column>
 
         <el-table-column
-          fixed="right"
-          label="操作"
-          width="200">
-        <template slot-scope="scope">
-          <el-button type="primary" icon="el-icon-edit" circle size='small' @click="edit(scope.row)"></el-button>
-          <el-popconfirm
-              @onConfirm="del(scope.row.id)"
-              title="确定删除？"
-          >
-            <el-button size='small' type="danger" icon="el-icon-delete" circle slot="reference" style="margin-left: 10px"></el-button>
-          </el-popconfirm>
-        </template>
+                fixed="right"
+                label="操作"
+                width="200">
+            <template slot-scope="scope">
+                <el-button type="primary" icon="el-icon-edit" circle size='small' @click="edit(scope.row)"></el-button>
+                <el-popconfirm
+                        @onConfirm="del(scope.row.id)"
+                        title="确定删除？"
+                >
+                    <el-button size='small' type="danger" icon="el-icon-delete" circle slot="reference"
+                               style="margin-left: 10px"></el-button>
+                </el-popconfirm>
+            </template>
         </el-table-column>
     </el-table>
     <!-- 分页 -->
@@ -75,9 +83,18 @@
             <el-form-item label="物品类型" label-width="120px">
                 <el-input v-model="entity.type" autocomplete="off" style="width: 80%"></el-input>
             </el-form-item>
-<!--            <el-form-item label="物品图标" label-width="120px">-->
-<!--                <el-input v-model="entity.goodUrl" autocomplete="off" style="width: 80%"></el-input>-->
-<!--            </el-form-item>-->
+            <el-form-item label="物品图标" label-width="120px">
+                <div style="padding: 20px 0;">
+                    <el-upload
+                            class="avatar-uploader"
+                            action="/files/upload"
+                            :show-file-list="false"
+                            :on-success="handleAvatarSuccess">
+                        <img style="width: 60px;height: 60px;" v-if="entity.goodUrl" :src="entity.goodUrl" class="avatar">
+                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                    </el-upload>
+                </div>
+            </el-form-item>
             <el-form-item label="物品编号" label-width="120px">
                 <el-input v-model="entity.goodId" autocomplete="off" style="width: 80%"></el-input>
             </el-form-item>
@@ -85,10 +102,12 @@
                 <el-input v-model="entity.shopId" autocomplete="off" style="width: 80%"></el-input>
             </el-form-item>
             <el-form-item label="创建时间" label-width="120px">
-                <el-date-picker style="width: 80%" v-model="entity.createTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期时间"></el-date-picker>
+                <el-date-picker style="width: 80%" v-model="entity.createTime" type="datetime"
+                                value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期时间"></el-date-picker>
             </el-form-item>
             <el-form-item label="更新时间" label-width="120px">
-                <el-date-picker style="width: 80%" v-model="entity.updateTime" type="datetime" value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期时间"></el-date-picker>
+                <el-date-picker style="width: 80%" v-model="entity.updateTime" type="datetime"
+                                value-format="yyyy-MM-dd HH:mm:ss" placeholder="选择日期时间"></el-date-picker>
             </el-form-item>
             <el-form-item label="商品库存" label-width="120px">
                 <el-input v-model="entity.stock" autocomplete="off" style="width: 80%"></el-input>
@@ -134,6 +153,23 @@
             this.loadTable();
         },
         methods: {
+            handleAvatarSuccess(res) {
+                console.log(res);
+                console.log(this.entity);
+                if (res.code === "0") {
+                    this.$message({
+                        message: "上传成功",
+                        type: "success"
+                    });
+                    this.entity.goodUrl = res.data;
+                    this.save(this.entity);
+                }else {
+                    this.$message({
+                        message: "图片上传失败",
+                        type: "error"
+                    });
+                }
+            },
             fileSuccessUpload(res) {
                 this.entity.file = "http://localhost:9999/files/" + res.data;
                 this.entity.img = "http://localhost:9999/files/" + res.data;
@@ -169,9 +205,9 @@
                     this.total = res.data.total;
                 })
 
-                 // $.get("/api/").then(res => {
-                    // this.options = res.data;
-                 // })
+                // $.get("/api/").then(res => {
+                // this.options = res.data;
+                // })
             },
             exp() {   // excel 导出
                 window.open(urlBase + "/export");

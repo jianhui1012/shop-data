@@ -1,22 +1,31 @@
 package com.example.controller;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.util.StrUtil;
 import com.example.common.Result;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  文件上传
+ * 文件上传
  */
 @RestController
 @RequestMapping("/files")
 public class FileController {
+
+    @Value("${serverPath}")
+    public String serverPath;
 
     /**
      * 单文件上传
@@ -25,19 +34,48 @@ public class FileController {
      * @return
      */
     @PostMapping("/upload")
-    public Result<String> upload(MultipartFile file) {
+    public Result<String> upload(MultipartFile file, HttpServletRequest req) {
         synchronized (FileController.class) {
-            String filePath = System.getProperty("user.dir") + "/src/main/resources/static/file/";
-            String flag = System.currentTimeMillis() + "";
-            String fileName = file.getOriginalFilename();
-            try {
-                FileUtil.writeBytes(file.getBytes(), filePath + flag + "-" + fileName);
-                System.out.println(fileName + "--上传成功");
-                Thread.sleep(1L);
-            } catch (Exception e) {
-                System.err.println(fileName + "--文件上传失败");
+            //首先校验图片格式
+            List<String> imgTypes = new ArrayList<>();
+            String rootPath = System.getProperty("user.dir") + serverPath;
+            //"jpg", "jpeg", "png", "bmp", "gif"
+            imgTypes.add("jpg");
+            imgTypes.add("jpeg");
+            imgTypes.add("png");
+            imgTypes.add("bmp");
+            imgTypes.add("gif");
+
+            // 获取文件名，带后缀
+            String originalFilename = file.getOriginalFilename();
+            // 获取文件的后缀格式
+            String fileSuffix = FileNameUtil.extName(originalFilename);
+            String fileName = System.currentTimeMillis() + "." + fileSuffix;
+            String filePath = rootPath + fileName;
+
+            if (imgTypes.contains(fileSuffix)) {
+                File destFile = new File(filePath);
+                if (!destFile.getParentFile().exists()) {
+                    destFile.getParentFile().mkdirs();
+                }
+
+                //如果文件存在，删除原有文件
+                if (destFile.exists() && destFile.isFile()) {
+                    destFile.delete();
+                }
+                String url = "";
+                try {
+                    file.transferTo(destFile);
+                    //生成返回给前端的url
+                    url = req.getScheme() + "://" + req.getServerName() + ":" +
+                            req.getServerPort() + "/files/" + fileName;
+                    System.out.println(filePath + ",url:" + url);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return Result.success(url);
             }
-            return Result.success(flag);
+            return Result.error("500","图片上传失败");
         }
     }
 
