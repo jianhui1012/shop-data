@@ -1,27 +1,28 @@
 package com.example.controller;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.text.StrBuilder;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.common.Result;
 import com.example.common.utils.KeyConst;
 import com.example.entity.BorrowRecord;
 import com.example.entity.Good;
-import com.example.service.BorrowRecordService;
 import com.example.entity.User;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.exception.CustomException;
+import com.example.service.BorrowRecordService;
+import com.example.service.GoodService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
-import com.example.exception.CustomException;
-import cn.hutool.core.util.StrUtil;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
@@ -30,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
-import java.math.BigDecimal;
+import java.util.stream.Collectors;
 
 @Api(tags = "借用记录接口")
 @RestController
@@ -38,6 +39,8 @@ import java.math.BigDecimal;
 public class BorrowRecordController {
     @Resource
     private BorrowRecordService borrowRecordService;
+    @Resource
+    private GoodService goodService;
     @Resource
     private HttpServletRequest request;
 
@@ -62,7 +65,7 @@ public class BorrowRecordController {
     @PostMapping("/updateBorrowStatus/{borrowRecordId}")
     public Result<?> updateBorrowStatus(@PathVariable Long borrowRecordId, @ApiParam(value = "1-已借用，2-已归还 3-申请借用,等待店铺老板同意")
     @RequestParam Integer status) {
-        return Result.success(borrowRecordService.updateStatus(borrowRecordId,status));
+        return Result.success(borrowRecordService.updateStatus(borrowRecordId, status));
     }
 
     @PutMapping
@@ -81,7 +84,7 @@ public class BorrowRecordController {
 
     @ApiOperation(value = "根据店铺id和借用状态来获取该店铺下所有的借用记录")
     @GetMapping("/getByShopIdAndStatus/{shopId}")
-    public Result<?> getByShopIdAndStatus(@PathVariable Long shopId,@ApiParam(value = "status不传的话则获取该店铺下所有的借用记录 status:1-已借用，2-已归还 3-申请借用,等待店铺老板同意")
+    public Result<?> getByShopIdAndStatus(@PathVariable Long shopId, @ApiParam(value = "status不传的话则获取该店铺下所有的借用记录 status:1-已借用，2-已归还 3-申请借用,等待店铺老板同意")
     @RequestParam(required = false) Integer status) {
         if (shopId == null) {
             throw new CustomException("-1", "参数错误");
@@ -172,6 +175,35 @@ public class BorrowRecordController {
             throw new CustomException("-1", "参数错误");
         }
         return Result.success(borrowRecordService.createTakeRecord(borrowRecord));
+    }
+
+    @ApiOperation(value = "根据用户id和店铺id获取未归还的商品提示")
+    @GetMapping("/getNonReturnedTips/{shopId}")
+    public Result<?> getNonReturnedTips(@PathVariable Long shopId, @RequestParam Integer userId) {
+        if (shopId == null) {
+            throw new CustomException("-1", "店铺id不能为空");
+        }
+        if (userId == null) {
+            throw new CustomException("-1", "用户id不能为空");
+        }
+        LambdaQueryWrapper<BorrowRecord> queryWrapper = Wrappers.<BorrowRecord>lambdaQuery().
+                eq(BorrowRecord::getShopId, shopId).eq(BorrowRecord::getBorrowUserId, userId)
+                .eq(BorrowRecord::getBorrowStatus, KeyConst.STATUS_BORROWED)
+                .orderByDesc(BorrowRecord::getStartTime);
+        List<BorrowRecord> recordList = borrowRecordService.list(queryWrapper);
+        StrBuilder tipText = new StrBuilder();
+        if (recordList.size() > 0) {
+            List<String> goodIdList = recordList.stream().map(BorrowRecord::getGoodsId).collect(Collectors.toList());
+            List<Good> goodList = goodService.getBaseMapper().selectList(Wrappers.<Good>lambdaQuery().in(Good::getGoodId, goodIdList));
+            List<String> goodListName = goodList.stream().map(Good::getName).collect(Collectors.toList());
+            String nameStr = Convert.toStr(goodListName);
+            if (nameStr.length() > 2) {
+                tipText.append("有");
+                tipText.append(nameStr.substring(1, nameStr.length() - 1));
+                tipText.append("未归还");
+            }
+        }
+        return Result.success(tipText.toString());
     }
 
 }
