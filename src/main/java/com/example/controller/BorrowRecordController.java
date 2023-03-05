@@ -248,12 +248,12 @@ public class BorrowRecordController {
             String sjrq = DateUtil.format(dateTime, "yyyy-MM-dd HH:mm:ss");
             System.out.println(sjrq);
             borrowRecord.setStartTime(new Date(c));
-            long c1 = c+RandomUtil.randomLong(5*60*60*1000,24*5*60*60*1000);
-            borrowRecord.setEndTime(new Date(c1));
             if("享用类型".equals(good.getType())){
                 borrowRecord.setBorrowStatus(4);
                 borrowRecord.setTakeCount(RandomUtil.randomInt(1,10));
             }else {
+                long c1 = c+RandomUtil.randomLong(5*60*60*1000,24*5*60*60*1000);
+                borrowRecord.setEndTime(new Date(c1));
                 borrowRecord.setBorrowStatus(2);
             }
             borrowRecordService.save(borrowRecord);
