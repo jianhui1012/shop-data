@@ -2,9 +2,12 @@ package com.example.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.text.StrBuilder;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
@@ -19,7 +22,10 @@ import com.example.entity.User;
 import com.example.exception.CustomException;
 import com.example.service.BorrowRecordService;
 import com.example.service.GoodService;
+import com.example.service.UserService;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +47,8 @@ public class BorrowRecordController {
     private BorrowRecordService borrowRecordService;
     @Resource
     private GoodService goodService;
+    @Resource
+    private UserService userService;
     @Resource
     private HttpServletRequest request;
 
@@ -204,6 +212,53 @@ public class BorrowRecordController {
             }
         }
         return Result.success(tipText.toString());
+    }
+
+
+    @ApiOperation(value = "生成借用记录接口")
+    @GetMapping("/creatTestBorrowGood")
+    public Result<?> requestBorrowGood() {
+        if (borrowRecordService.list().size() >= 2000) {
+            throw new CustomException("-1", "数量量大于2000了");
+        }
+        List<User> userList = userService.list();
+        List<Good> goodList = goodService.list();
+
+        BorrowRecord borrowRecord;
+        for (int i = 0; i <= 2000; i++) {
+            borrowRecord = new BorrowRecord();
+            //用户数据
+            User user = RandomUtil.randomEle(userList);
+            borrowRecord.setBorrowUserId(Math.toIntExact(user.getId()));
+            borrowRecord.setUsername(user.getUsername());
+            borrowRecord.setPhone(user.getPhone());
+            //商品数据随机
+            Good good = RandomUtil.randomEle(goodList);
+            borrowRecord.setGoodsId(good.getGoodId());
+            borrowRecord.setShopId(good.getShopId());
+            //时间生成
+            String ksrq = "2022-10-01 06:00:00";
+            String jsrq = "2023-02-28 23:00:00";
+            //分别获取开始时间和结束时间时间戳
+            long a = DateUtil.parse(ksrq).getTime();
+            long b = DateUtil.parse(jsrq).getTime();
+            long c = RandomUtil.randomLong(a, b);
+            //将时间戳转为日期
+            DateTime dateTime = new DateTime(c);
+            String sjrq = DateUtil.format(dateTime, "yyyy-MM-dd HH:mm:ss");
+            System.out.println(sjrq);
+            borrowRecord.setStartTime(new Date(c));
+            long c1 = c+RandomUtil.randomLong(5*60*60*1000,24*5*60*60*1000);
+            borrowRecord.setEndTime(new Date(c1));
+            if("享用类型".equals(good.getType())){
+                borrowRecord.setBorrowStatus(4);
+                borrowRecord.setTakeCount(RandomUtil.randomInt(1,10));
+            }else {
+                borrowRecord.setBorrowStatus(2);
+            }
+            borrowRecordService.save(borrowRecord);
+        }
+        return Result.success();
     }
 
 }
