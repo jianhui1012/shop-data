@@ -16,8 +16,8 @@ public class SwaggerConfig {
     @Bean
     public Docket getUserDocket(){
         ApiInfo apiInfo=new ApiInfoBuilder()
-                .title("共享店铺API")//api标题
-                .description("共享店铺相关接口文档")//api描述
+                .title("店铺数据API")//api标题
+                .description("店铺数据相关接口文档")//api描述
                 .version("1.0.0")//版本号
                 .build();
         return new Docket(DocumentationType.SWAGGER_2)//文档类型（swagger2）

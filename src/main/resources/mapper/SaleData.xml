@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapper.SaleDataMapper">
+
+    <select id="selectByMyWrapper" resultType="com.example.entity.SaleData">
+        SELECT * FROM trs_sal_saledtl_jh_2022
+    </select>
+
+</mapper>

@@ -19,10 +19,9 @@ import java.util.Map;
  */
 public class MybatisCodeGenerator {
     private static final DruidDataSource ds = new DruidDataSource();
-
-    private static final String schemaName = "shareshop";   // 数据库名称，必填
-    private static final String[] table = {"t_goods", "Good"};   // 必填，第一个是表名，第二个是实体类的名字
-    private static final String modelName = "商品";   // 必填
+    private static final String schemaName = "pa";   // 数据库名称，必填
+    private static final String[] table = {"trs_sal_saledtl_jh_2022", "SaleData"};   // 必填，第一个是表名，第二个是实体类的名字
+    private static final String modelName = "交易";   // 必填
 
     //=========================================以上内容必填===================================================//
 

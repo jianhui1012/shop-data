@@ -4,6 +4,8 @@ public class Result<T> {
     private String code;
     private String msg;
     private T data;
+    public static int SUCCESS_CODE = 200;
+    public static String SUCCESS_STR = "成功";
 
     public String getCode() {
         return code;
@@ -38,15 +40,15 @@ public class Result<T> {
 
     public static Result success() {
         Result result = new Result<>();
-        result.setCode("0");
-        result.setMsg("成功");
+        result.setCode(String.valueOf(SUCCESS_CODE));
+        result.setMsg(SUCCESS_STR);
         return result;
     }
 
     public static <T> Result<T> success(T data) {
         Result<T> result = new Result<>(data);
-        result.setCode("0");
-        result.setMsg("成功");
+        result.setCode(String.valueOf(SUCCESS_CODE));
+        result.setMsg(SUCCESS_STR);
         return result;
     }
 
