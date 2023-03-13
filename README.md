@@ -23,51 +23,19 @@ Java后台：SpringBoot 2.1.0 + Mybatis-plus+ hutool工具包 + Apache poi
 
 1. 使用git下载本项目
 
-    `https://github.com/jianhui1012/share-shop`
+    `https://github.com/jianhui1012/shop-data`
 
-2. 使用idea打开share-shop文件夹导入工程
+2. 使用idea打开shop-data文件夹导入工程
 
 3. 配置maven，下载项目依赖
    
    ![](pic/1.png)
    
-4. 新建数据库shareshop，执行shareshop_2022-10-09.sql
-   
-   ![](pic/2.png)
+4. 新建数据库
    
 5. 修改application.yml中的数据库密码
-
-   ![](pic/3.png)
    
 6. 项目依赖下载完成后，直接运行 Application 启动SpringBoot即可
-
-   ![](pic/4.png)
    
-7. 运行效果   
-
-   ![](pic/5.png)
-
-#### 🛸 使用说明
-
-1. 登录页面请访问：http://localhost:9999/page/end/login.html
-2. 账号：admin，密码：admin
-
-#### 🎨 界面截图
-
-登录
-
-![](pic/6.png)
-
-项目主页
-
-![](pic/7.png)
-
-店铺管理
-
-![](pic/8.png)
-
-商品管理
-
-![](pic/9.png)
-
+7. 运行效果
 ...
