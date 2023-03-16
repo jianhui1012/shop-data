@@ -52,11 +52,11 @@
             ),2) as jyCost,ROUND(SUM(sum_amount_jy)-SUM(sum_cost_amount_jy),2
             ) as jyGrossProfit,SUM(sum_quantity_fy) as fyAmount,ROUND(SUM(sum_cost_amount_fy
             ),2) as fyCost,ROUND(SUM(sum_amount_fy)-SUM(sum_cost_amount_fy),2
-            ) as fyGrossProfit FROM trs_sal_saledtl_jh_2022 WHERE customer_name = #{shopName} AND  GROUP BY biz_month
+            ) as fyGrossProfit FROM trs_sal_saledtl_jh_2022 WHERE customer_name = #{shopName}  GROUP BY biz_month
     </select>
 
     <select id="selectFyZFPurchaseReminder" resultType="com.example.entity.vo.PurchaseReminder">
-        SELECT goods_name,dysl,sysl,CONCAT(ROUND(((dysl-sysl)/sysl)*100,2),'%') as fd
+        SELECT goods_name as goodName,dysl,sysl,CONCAT(ROUND(((dysl-sysl)/sysl)*100,2),'%') as fd
         from (
                  SELECT goods_name,(SELECT sum(quantity) FROM trs_sal_saledtl_jh_2022 as a WHERE a.goods_name=b.goods_name AND is_tobacco=0 AND MONTH(sale_time) = MONTH(#{time}) ) as dysl,
     sum(quantity) AS sysl

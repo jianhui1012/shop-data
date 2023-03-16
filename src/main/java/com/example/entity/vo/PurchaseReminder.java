@@ -15,7 +15,7 @@ import lombok.Data;
 public class PurchaseReminder {
 
     @ApiModelProperty(value = "商品名称")
-    private String goods_name;
+    private String goodName;
     private int dysl;
     private int sysl;
     @ApiModelProperty(value = "增幅数据")

@@ -24,9 +24,9 @@ public interface SaleDataMapper extends BaseMapper<SaleData> {
     double selectProfit(@Param("shopName") String shopName,
                                           @Param("time") String time);
 
-    ShopMonthData selectShopMonthData(@Param("shopName") String shopName);
+    List<ShopMonthData> selectShopMonthData(@Param("shopName") String shopName);
 
 
-    PurchaseReminder selectFyZFPurchaseReminder(@Param("shopName") String shopName, @Param("time") String time);
+    List<PurchaseReminder> selectFyZFPurchaseReminder(@Param("shopName") String shopName, @Param("time") String time);
 
 }

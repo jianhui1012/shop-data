@@ -35,11 +35,11 @@ public class SaleDataService extends ServiceImpl<SaleDataMapper, SaleData> {
         return saleDataMapper.selectProfit(shopName,time);
     }
 
-    public ShopMonthData selectShopMonthData(String shopName) {
+    public  List<ShopMonthData> selectShopMonthData(String shopName) {
         return saleDataMapper.selectShopMonthData(shopName);
     }
 
-    public PurchaseReminder selectFyZFPurchaseReminder(String shopName, String time) {
+    public List<PurchaseReminder> selectFyZFPurchaseReminder(String shopName, String time) {
         return saleDataMapper.selectFyZFPurchaseReminder(shopName,time);
     }
 
