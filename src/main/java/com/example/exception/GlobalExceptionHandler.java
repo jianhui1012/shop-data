@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
     @ResponseBody//返回json串
     public Result<?> error(HttpServletRequest request, Exception e){
         log.error("异常信息：",e);
-        return Result.error("-1", "系统异常");
+        return Result.error(Result.FAIL_CODE, "系统异常");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -42,12 +42,12 @@ public class GlobalExceptionHandler {
 //            });
         }
 
-        return Result.error("-1", errorMsg.toString());
+        return Result.error(Result.FAIL_CODE, errorMsg.toString());
     }
 
     @ExceptionHandler(CustomException.class)
     @ResponseBody//返回json串
     public Result<?> customError(HttpServletRequest request, CustomException e){
-        return Result.error(e.getCode(), e.getMsg());
+        return Result.error(Integer.parseInt(e.getCode()), e.getMsg());
     }
 }

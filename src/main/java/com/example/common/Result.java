@@ -5,6 +5,7 @@ public class Result<T> {
     private String msg;
     private T data;
     public static int SUCCESS_CODE = 200;
+    public static int FAIL_CODE = 200;
     public static String SUCCESS_STR = "成功";
 
     public String getCode() {
@@ -52,9 +53,9 @@ public class Result<T> {
         return result;
     }
 
-    public static Result error(String code, String msg) {
+    public static Result error(int code, String msg) {
         Result result = new Result();
-        result.setCode(code);
+        result.setCode(String.valueOf(code));
         result.setMsg(msg);
         return result;
     }
