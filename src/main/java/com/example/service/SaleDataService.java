@@ -44,4 +44,9 @@ public class SaleDataService extends ServiceImpl<SaleDataMapper, SaleData> {
     }
 
 
+    public List<PurchaseReminder> selectFyJFPurchaseReminder(String shopName, String time) {
+        return saleDataMapper.selectFyJFPurchaseReminder(shopName,time);
+    }
+
+
 }

@@ -69,6 +69,19 @@
     </select>
 
 
+    <select id="selectFyJFPurchaseReminder" resultType="com.example.entity.vo.PurchaseReminder">
+        SELECT goods_name as goodName,dysl,sysl,CONCAT(ROUND(((dysl-sysl)/sysl)*100,2),'%') as fd
+        from (
+                 SELECT goods_name,(SELECT sum(quantity) FROM trs_sal_saledtl_jh_2022 as a WHERE a.goods_name=b.goods_name AND is_tobacco=0 AND MONTH(sale_time) = MONTH(#{time}) ) as dysl,
+            sum(quantity) AS sysl
+        FROM trs_sal_saledtl_jh_2022 as b
+        WHERE customer_name = #{shopName}
+          AND MONTH(sale_time) = MONTH(#{time} - INTERVAL 1 MONTH) AND is_tobacco=0
+        GROUP BY goods_name
+            ) as t ORDER BY (ROUND(((dysl-sysl)/sysl)*100,2))
+            LIMIT 10
+    </select>
+
 
 
 </mapper>
