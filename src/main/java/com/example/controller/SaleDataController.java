@@ -116,7 +116,7 @@ public class SaleDataController {
         jyQsvData.setQsvList(jyQSVList);
         jyQsvData.setNextMonthAmount(nextMonthAmount.getNextMonthJyAmount());
         jyQsvData.setProfit(profit.getJyProfit());
-        shopData.setJyQSVData(jyQsvData);
+
 
 
         QSVData fyQsvData = new QSVData();
@@ -129,7 +129,10 @@ public class SaleDataController {
         fyQsvData.setQsvList(fyQSVList);
         fyQsvData.setNextMonthAmount(nextMonthAmount.getNextMonthFyAmount());
         fyQsvData.setProfit(profit.getFyProfit());
-        shopData.setFyQSVData(fyQsvData);
+        ShopQSVData shopQSVData = new ShopQSVData();
+        shopQSVData.setJyQSVData(jyQsvData);
+        shopQSVData.setFyQSVData(fyQsvData);
+        shopData.setShopQSVData(shopQSVData);
 
         shopData.setShopMonthDataList(saleDataService.selectShopMonthData(shopName));
         shopData.setZfPurchaseReminder(saleDataService.selectFyZFPurchaseReminder(shopName, time));

@@ -16,12 +16,8 @@ import java.util.List;
 @Data
 public class ShopData {
 
-
-    @ApiModelProperty(value = "卷烟销售汇总数据")
-    private QSVData jyQSVData;
-
-    @ApiModelProperty(value = "非烟销售汇总数据")
-    private QSVData fyQSVData;
+    @ApiModelProperty(value = "销售汇总数据")
+    private ShopQSVData shopQSVData;
 
     @ApiModelProperty(value = "查询店铺按月份找出卷烟销售数量、成本、毛利（卷烟量本利）")
     private List<ShopMonthData> shopMonthDataList;
