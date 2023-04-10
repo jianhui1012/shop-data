@@ -2,10 +2,7 @@ package com.example.service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.SaleData;
-import com.example.entity.vo.NextMonthAmount;
-import com.example.entity.vo.PurchaseReminder;
-import com.example.entity.vo.QuantitySalesVolume;
-import com.example.entity.vo.ShopMonthData;
+import com.example.entity.vo.*;
 import com.example.mapper.SaleDataMapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
@@ -19,19 +16,27 @@ public class SaleDataService extends ServiceImpl<SaleDataMapper, SaleData> {
     @Resource
     private SaleDataMapper saleDataMapper;
 
-    public QuantitySalesVolume selectQuantitySalesVolume(int type, String shopName, String time) {
-        return saleDataMapper.selectQuantitySalesVolume(type,shopName,time);
+    public QuantitySalesVolume selectJyQuantitySalesVolume(int type, String shopName, String time) {
+        return saleDataMapper.selectJyQuantitySalesVolume(type,shopName,time);
     }
 
-    public QuantitySalesVolume selectAvgQuantitySalesVolume(String shopName, String time) {
-        return saleDataMapper.selectAvgQuantitySalesVolume(shopName,time);
+    public QuantitySalesVolume selectJyAvgQuantitySalesVolume(String shopName, String time) {
+        return saleDataMapper.selectJyAvgQuantitySalesVolume(shopName,time);
+    }
+
+    public QuantitySalesVolume selectFyQuantitySalesVolume(int type, String shopName, String time) {
+        return saleDataMapper.selectFyQuantitySalesVolume(type,shopName,time);
+    }
+
+    public QuantitySalesVolume selectFyAvgQuantitySalesVolume(String shopName, String time) {
+        return saleDataMapper.selectFyAvgQuantitySalesVolume(shopName,time);
     }
 
     public NextMonthAmount selectNextMonthAmount(String shopName, String time) {
         return saleDataMapper.selectNextMonthAmount(shopName,time);
     }
 
-    public double selectProfit(String shopName, String time) {
+    public Profit selectProfit(String shopName, String time) {
         return saleDataMapper.selectProfit(shopName,time);
     }
 

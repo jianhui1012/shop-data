@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.mapper.SaleDataMapper">
 
-    <select id="selectQuantitySalesVolume" resultType="com.example.entity.vo.QuantitySalesVolume">
+    <select id="selectJyQuantitySalesVolume" resultType="com.example.entity.vo.QuantitySalesVolume">
         SELECT
         SUM(sum_quantity_jy) AS quantity,
         SUM(sum_cost_amount_jy) AS cost,
@@ -21,7 +21,7 @@
         </if>
     </select>
 
-    <select id="selectAvgQuantitySalesVolume" resultType="com.example.entity.vo.QuantitySalesVolume">
+    <select id="selectJyAvgQuantitySalesVolume" resultType="com.example.entity.vo.QuantitySalesVolume">
         SELECT
             AVG(sum_quantity_jy) AS quantity,
             AVG(sum_cost_amount_jy) AS cost,
@@ -32,6 +32,39 @@
             customer_name = #{shopName}
     </select>
 
+    <select id="selectFyQuantitySalesVolume" resultType="com.example.entity.vo.QuantitySalesVolume">
+        SELECT
+        SUM(sum_quantity_fy) AS quantity,
+        SUM(sum_cost_amount_fy) AS cost,
+        SUM(sum_amount_fy) AS salesVolume
+        FROM
+        trs_sal_saledtl_jh_2022
+        WHERE customer_name = #{shopName}
+        <if test="type == 1">
+            AND YEAR(sale_time) = YEAR(#{time}) AND MONTH(sale_time) = MONTH(#{time})
+        </if>
+        <if test="type == 2">
+            AND YEAR(sale_time) = YEAR(#{time})
+        </if>
+        <if test="type == 3">
+            AND YEAR(sale_time) = YEAR(#{time})-1
+        </if>
+    </select>
+
+
+    <select id="selectFyAvgQuantitySalesVolume" resultType="com.example.entity.vo.QuantitySalesVolume">
+        SELECT
+            AVG(sum_quantity_fy) AS quantity,
+            AVG(sum_cost_amount_fy) AS cost,
+            AVG(sum_amount_fy) AS salesVolume
+        FROM
+            trs_sal_saledtl_jh_2022
+        WHERE
+            customer_name = #{shopName}
+    </select>
+
+
+
     <select id="selectNextMonthAmount" resultType="com.example.entity.vo.NextMonthAmount">
         SELECT SUM(sum_cost_amount_jy) AS nextMonthJyAmount,SUM(sum_cost_amount_fy) AS nextMonthFyAmount
         FROM trs_sal_saledtl_jh_2022
@@ -40,8 +73,8 @@
     </select>
 
 
-    <select id="selectProfit" resultType="double">
-        SELECT SUM(sum_amount_jy - sum_cost_amount_jy) AS profit
+    <select id="selectProfit" resultType="com.example.entity.vo.Profit">
+        SELECT SUM(sum_amount_jy - sum_cost_amount_jy) AS jyProfit,SUM(sum_amount_fy - sum_cost_amount_fy) AS fyProfit
         FROM trs_sal_saledtl_jh_2022
         WHERE  customer_name = #{shopName} AND YEAR(sale_time) = YEAR(#{time} - INTERVAL 1 YEAR)
           AND MONTH(sale_time) = MONTH(#{time} - INTERVAL 1 YEAR)
@@ -52,7 +85,7 @@
             ),2) as jyCost,ROUND(SUM(sum_amount_jy)-SUM(sum_cost_amount_jy),2
             ) as jyGrossProfit,SUM(sum_quantity_fy) as fyAmount,ROUND(SUM(sum_cost_amount_fy
             ),2) as fyCost,ROUND(SUM(sum_amount_fy)-SUM(sum_cost_amount_fy),2
-            ) as fyGrossProfit FROM trs_sal_saledtl_jh_2022 WHERE customer_name = #{shopName}  GROUP BY biz_month
+            ) as fyGrossProfit FROM trs_sal_saledtl_jh_2022 WHERE customer_name = #{shopName}  GROUP BY biz_month ORDER BY biz_month asc
     </select>
 
     <select id="selectFyZFPurchaseReminder" resultType="com.example.entity.vo.PurchaseReminder">

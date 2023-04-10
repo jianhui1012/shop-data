@@ -16,21 +16,12 @@ import java.util.List;
 @Data
 public class ShopData {
 
-    @ApiModelProperty(value = "查询店铺当月的数量、成本、销售额")
-    private QuantitySalesVolume dyQuantitySalesVolume;
-    @ApiModelProperty(value = "查询店铺今年以来的数量、成本、销售额")
-    private QuantitySalesVolume jNQuantitySalesVolume;
-    @ApiModelProperty(value = "查询店铺去年同期的数量、成本、销售额")
-    private QuantitySalesVolume qNQuantitySalesVolume;
 
-    @ApiModelProperty(value = "查询店铺平均同期的数量、成本、销售额")
-    private QuantitySalesVolume avgQuantitySalesVolume;
+    @ApiModelProperty(value = "卷烟销售汇总数据")
+    private QSVData jyQSVData;
 
-    @ApiModelProperty(value = "查询店铺下个月的进货资金")
-    private NextMonthAmount nextMonthAmount;
-
-    @ApiModelProperty(value = "查询店铺预计产生的利润")
-    private double profit;
+    @ApiModelProperty(value = "非烟销售汇总数据")
+    private QSVData fyQSVData;
 
     @ApiModelProperty(value = "查询店铺按月份找出卷烟销售数量、成本、毛利（卷烟量本利）")
     private List<ShopMonthData> shopMonthDataList;

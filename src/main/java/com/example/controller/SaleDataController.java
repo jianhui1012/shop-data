@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 
 ;
@@ -39,7 +40,7 @@ public class SaleDataController {
         if (StrUtil.isEmpty(time)) {
             time = DateUtil.now();
         }
-        return Result.success(saleDataService.selectQuantitySalesVolume(type, shopName, time));
+        return Result.success(saleDataService.selectJyQuantitySalesVolume(type, shopName, time));
     }
 
     @ApiOperation(value = "查询店铺平均的的数量、成本、销售额接口")
@@ -49,7 +50,7 @@ public class SaleDataController {
         if (StrUtil.isEmpty(time)) {
             time = DateUtil.now();
         }
-        return Result.success(saleDataService.selectAvgQuantitySalesVolume(shopName, time));
+        return Result.success(saleDataService.selectJyAvgQuantitySalesVolume(shopName, time));
     }
 
     @ApiOperation(value = "查询店铺下个月的进货资金接口")
@@ -102,13 +103,34 @@ public class SaleDataController {
         if (StrUtil.isEmpty(time)) {
             time = DateUtil.now();
         }
+        Profit profit = saleDataService.selectProfit(shopName, time);
+        NextMonthAmount nextMonthAmount = saleDataService.selectNextMonthAmount(shopName, time);
         //查询类型：1是当月，2是今年以来 3是去年同期
-        shopData.setDyQuantitySalesVolume(saleDataService.selectQuantitySalesVolume(1, shopName, time));
-        shopData.setJNQuantitySalesVolume(saleDataService.selectQuantitySalesVolume(2, shopName, time));
-        shopData.setQNQuantitySalesVolume(saleDataService.selectQuantitySalesVolume(3, shopName, time));
-        shopData.setAvgQuantitySalesVolume(saleDataService.selectAvgQuantitySalesVolume(shopName, time));
-        shopData.setNextMonthAmount(saleDataService.selectNextMonthAmount(shopName, time));
-        shopData.setProfit(saleDataService.selectProfit(shopName, time));
+        QSVData jyQsvData = new QSVData();
+        List<QuantitySalesVolume> jyQSVList = new ArrayList<>();
+        jyQSVList.add(saleDataService.selectJyQuantitySalesVolume(1, shopName, time));
+        jyQSVList.add(saleDataService.selectJyQuantitySalesVolume(2, shopName, time));
+        jyQSVList.add(saleDataService.selectJyQuantitySalesVolume(3, shopName, time));
+        jyQSVList.add(saleDataService.selectJyAvgQuantitySalesVolume(shopName, time));
+        //卷烟数据
+        jyQsvData.setQsvList(jyQSVList);
+        jyQsvData.setNextMonthAmount(nextMonthAmount.getNextMonthJyAmount());
+        jyQsvData.setProfit(profit.getJyProfit());
+        shopData.setJyQSVData(jyQsvData);
+
+
+        QSVData fyQsvData = new QSVData();
+        List<QuantitySalesVolume> fyQSVList = new ArrayList<>();
+        fyQSVList.add(saleDataService.selectFyQuantitySalesVolume(1, shopName, time));
+        fyQSVList.add(saleDataService.selectFyQuantitySalesVolume(2, shopName, time));
+        fyQSVList.add(saleDataService.selectFyQuantitySalesVolume(3, shopName, time));
+        fyQSVList.add(saleDataService.selectFyAvgQuantitySalesVolume(shopName, time));
+        //非烟数据
+        fyQsvData.setQsvList(fyQSVList);
+        fyQsvData.setNextMonthAmount(nextMonthAmount.getNextMonthFyAmount());
+        fyQsvData.setProfit(profit.getFyProfit());
+        shopData.setFyQSVData(fyQsvData);
+
         shopData.setShopMonthDataList(saleDataService.selectShopMonthData(shopName));
         shopData.setZfPurchaseReminder(saleDataService.selectFyZFPurchaseReminder(shopName, time));
         shopData.setJfPurchaseReminder(saleDataService.selectFyJFPurchaseReminder(shopName, time));
