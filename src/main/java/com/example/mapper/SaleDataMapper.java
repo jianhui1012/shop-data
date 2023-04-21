@@ -33,4 +33,6 @@ public interface SaleDataMapper extends BaseMapper<SaleData> {
     List<PurchaseReminder> selectFyZFPurchaseReminder(@Param("shopName") String shopName, @Param("time") String time);
 
     List<PurchaseReminder> selectFyJFPurchaseReminder(@Param("shopName") String shopName, @Param("time") String time);
+
+    List<SaleSuggestion> selectSaleSuggestion(@Param("shopName") String shopName, @Param("type") int type);
 }

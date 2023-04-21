@@ -6,7 +6,8 @@
         SELECT
         SUM(sum_quantity_jy) AS quantity,
         SUM(sum_cost_amount_jy) AS cost,
-        SUM(sum_amount_jy) AS salesVolume
+        SUM(sum_amount_jy) AS salesVolume,
+        (SUM(sum_amount_jy)-SUM(sum_cost_amount_jy)) AS profit
         FROM
             trs_sal_saledtl_jh_2022
         WHERE customer_name = #{shopName}
@@ -25,7 +26,8 @@
         SELECT
             AVG(sum_quantity_jy) AS quantity,
             AVG(sum_cost_amount_jy) AS cost,
-            AVG(sum_amount_jy) AS salesVolume
+            AVG(sum_amount_jy) AS salesVolume,
+            (AVG(sum_amount_jy)-AVG(sum_cost_amount_jy)) AS profit
         FROM
             trs_sal_saledtl_jh_2022
         WHERE
@@ -36,7 +38,8 @@
         SELECT
         SUM(sum_quantity_fy) AS quantity,
         SUM(sum_cost_amount_fy) AS cost,
-        SUM(sum_amount_fy) AS salesVolume
+        SUM(sum_amount_fy) AS salesVolume,
+        (SUM(sum_amount_fy)-SUM(sum_cost_amount_fy)) AS profit
         FROM
         trs_sal_saledtl_jh_2022
         WHERE customer_name = #{shopName}
@@ -56,7 +59,8 @@
         SELECT
             AVG(sum_quantity_fy) AS quantity,
             AVG(sum_cost_amount_fy) AS cost,
-            AVG(sum_amount_fy) AS salesVolume
+            AVG(sum_amount_fy) AS salesVolume,
+            (AVG(sum_amount_fy)-AVG(sum_cost_amount_fy)) AS profit
         FROM
             trs_sal_saledtl_jh_2022
         WHERE
@@ -69,7 +73,7 @@
         SELECT SUM(sum_cost_amount_jy) AS nextMonthJyAmount,SUM(sum_cost_amount_fy) AS nextMonthFyAmount
         FROM trs_sal_saledtl_jh_2022
         WHERE customer_name = #{shopName} AND YEAR(sale_time) = YEAR(#{time} - INTERVAL 1 YEAR)
-          AND MONTH(sale_time) = MONTH(#{time} - INTERVAL 1 YEAR)
+          AND MONTH(sale_time) = MONTH(#{time} - INTERVAL 1 YEAR) + 1
     </select>
 
 
@@ -77,7 +81,7 @@
         SELECT SUM(sum_amount_jy - sum_cost_amount_jy) AS jyProfit,SUM(sum_amount_fy - sum_cost_amount_fy) AS fyProfit
         FROM trs_sal_saledtl_jh_2022
         WHERE  customer_name = #{shopName} AND YEAR(sale_time) = YEAR(#{time} - INTERVAL 1 YEAR)
-          AND MONTH(sale_time) = MONTH(#{time} - INTERVAL 1 YEAR)
+          AND MONTH(sale_time) = MONTH(#{time} - INTERVAL 1 YEAR) + 1
     </select>
 
     <select id="selectShopMonthData" resultType="com.example.entity.vo.ShopMonthData">
@@ -114,6 +118,24 @@
             ) as t ORDER BY (ROUND(((dysl-sysl)/sysl)*100,2))
             LIMIT 10
     </select>
+
+    <select id="selectSaleSuggestion" resultType="com.example.entity.vo.SaleSuggestion">
+        SELECT goods_name,
+        CASE
+        WHEN SUM(quantity) >= 100 AND SUM(amount - cost_amount) >= 5000 THEN '量多利多'
+        WHEN SUM(quantity) >= 100 AND SUM(amount - cost_amount) <![CDATA[ < ]] 5000 THEN '量多利少'
+        WHEN SUM(quantity) <![CDATA[ < ]] 100 AND SUM(amount - cost_amount) >= 5000 THEN '量少利多'
+        ELSE '量少利少'
+        END AS category,
+        SUM(quantity) AS total_quantity,
+        SUM(amount - cost_amount) AS total_profit
+        FROM `trs_sal_saledtl_jh_2022` WHERE
+        is_tobacco = #{type}
+        AND customer_name =  #{shopName}
+        GROUP BY goods_name
+        ORDER BY total_profit DESC
+    </select>
+
 
 
 

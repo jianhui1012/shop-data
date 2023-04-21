@@ -117,8 +117,6 @@ public class SaleDataController {
         jyQsvData.setNextMonthAmount(nextMonthAmount.getNextMonthJyAmount());
         jyQsvData.setProfit(profit.getJyProfit());
 
-
-
         QSVData fyQsvData = new QSVData();
         List<QuantitySalesVolume> fyQSVList = new ArrayList<>();
         fyQSVList.add(saleDataService.selectFyQuantitySalesVolume(1, shopName, time));
@@ -137,8 +135,10 @@ public class SaleDataController {
         shopData.setShopMonthDataList(saleDataService.selectShopMonthData(shopName));
         shopData.setZfPurchaseReminder(saleDataService.selectFyZFPurchaseReminder(shopName, time));
         shopData.setJfPurchaseReminder(saleDataService.selectFyJFPurchaseReminder(shopName, time));
+        //卷烟
+        shopData.setSaleJySuggestions(saleDataService.selectSaleSuggestion(shopName,1));
+        //非烟
+        shopData.setSaleFySuggestions(saleDataService.selectSaleSuggestion(shopName,0));
         return Result.success(shopData);
     }
-
-
 }

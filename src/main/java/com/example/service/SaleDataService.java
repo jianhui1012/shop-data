@@ -1,5 +1,6 @@
 package com.example.service;
 
+import cn.hutool.core.collection.ListUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.SaleData;
 import com.example.entity.vo.*;
@@ -8,7 +9,10 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class SaleDataService extends ServiceImpl<SaleDataMapper, SaleData> {
@@ -51,6 +55,12 @@ public class SaleDataService extends ServiceImpl<SaleDataMapper, SaleData> {
 
     public List<PurchaseReminder> selectFyJFPurchaseReminder(String shopName, String time) {
         return saleDataMapper.selectFyJFPurchaseReminder(shopName,time);
+    }
+
+    public Map<String, List<SaleSuggestion>> selectSaleSuggestion(String shopName, int type){
+        List<SaleSuggestion>  saleSuggestions = saleDataMapper.selectSaleSuggestion(shopName,type);
+        Map<String, List<SaleSuggestion>> groupByUserNameMap = saleSuggestions.stream().collect(Collectors.groupingBy(SaleSuggestion::getCategory));
+        return groupByUserNameMap;
     }
 
 
