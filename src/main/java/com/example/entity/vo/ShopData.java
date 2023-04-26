@@ -29,7 +29,7 @@ public class ShopData {
     @ApiModelProperty(value = "查询店铺非烟进货提醒表的降幅")
     private List<PurchaseReminder> jfPurchaseReminder;
 
-    private Map<String, List<SaleSuggestion>> saleJySuggestions;
+    private List<SaleSuggestionResp> saleJySuggestions;
 
-    private Map<String, List<SaleSuggestion>> saleFySuggestions;
+    private List<SaleSuggestionResp> saleFySuggestions;
 }

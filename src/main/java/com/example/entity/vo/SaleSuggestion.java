@@ -15,11 +15,11 @@ import lombok.Data;
 public class SaleSuggestion {
 
     @ApiModelProperty(value = "商品名称")
-    private String goods_name;
+    private String name;
     @ApiModelProperty(value = "策略")
     private String category;
     @ApiModelProperty(value = "数量")
-    private String total_quantity;
+    private String quantity;
     @ApiModelProperty(value = "利润")
-    private String total_profit;
+    private String profit;
 }

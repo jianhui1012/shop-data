@@ -57,10 +57,18 @@ public class SaleDataService extends ServiceImpl<SaleDataMapper, SaleData> {
         return saleDataMapper.selectFyJFPurchaseReminder(shopName,time);
     }
 
-    public Map<String, List<SaleSuggestion>> selectSaleSuggestion(String shopName, int type){
+    public List<SaleSuggestionResp> selectSaleSuggestion(String shopName, int type){
         List<SaleSuggestion>  saleSuggestions = saleDataMapper.selectSaleSuggestion(shopName,type);
         Map<String, List<SaleSuggestion>> groupByUserNameMap = saleSuggestions.stream().collect(Collectors.groupingBy(SaleSuggestion::getCategory));
-        return groupByUserNameMap;
+        List<SaleSuggestionResp> saleSuggestionResps = new ArrayList<>();
+        SaleSuggestionResp saleSuggestionResp;
+        for (String key:groupByUserNameMap.keySet()){
+            saleSuggestionResp = new SaleSuggestionResp();
+            saleSuggestionResp.setName(key);
+            saleSuggestionResp.setSaleSuggestionList(groupByUserNameMap.get(key));
+            saleSuggestionResps.add(saleSuggestionResp);
+        }
+        return saleSuggestionResps;
     }
 
 

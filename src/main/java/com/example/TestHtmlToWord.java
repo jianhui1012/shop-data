@@ -25,6 +25,6 @@ public class TestHtmlToWord {
         Document doc = new Document();
         doc.loadFromFile("/Users/golike/Documents/Hope/ShareShop/shop-data/src/main/resources/static/12.html", FileFormat.Html, XHTMLValidationType.None);
         //保存为Word格式到指定路径
-        doc.saveToFile("htmltoWord.docx", FileFormat.Docx_2013);
+        doc.saveToFile("htmltoWord.png", FileFormat.PDF);
     }
 }

@@ -120,23 +120,20 @@
     </select>
 
     <select id="selectSaleSuggestion" resultType="com.example.entity.vo.SaleSuggestion">
-        SELECT goods_name,
+        SELECT goods_name AS name,
         CASE
         WHEN SUM(quantity) >= 100 AND SUM(amount - cost_amount) >= 5000 THEN '量多利多'
-        WHEN SUM(quantity) >= 100 AND SUM(amount - cost_amount) <![CDATA[ < ]] 5000 THEN '量多利少'
-        WHEN SUM(quantity) <![CDATA[ < ]] 100 AND SUM(amount - cost_amount) >= 5000 THEN '量少利多'
+        WHEN SUM(quantity) >= 100 AND SUM(amount - cost_amount) &lt; 5000 THEN '量多利少'
+        WHEN SUM(quantity) &lt; 100 AND SUM(amount - cost_amount) >= 5000 THEN '量少利多'
         ELSE '量少利少'
         END AS category,
-        SUM(quantity) AS total_quantity,
-        SUM(amount - cost_amount) AS total_profit
+        SUM(quantity) AS quantity,
+        SUM(amount - cost_amount) AS profit
         FROM `trs_sal_saledtl_jh_2022` WHERE
         is_tobacco = #{type}
         AND customer_name =  #{shopName}
         GROUP BY goods_name
-        ORDER BY total_profit DESC
+        ORDER BY profit DESC
     </select>
-
-
-
 
 </mapper>
