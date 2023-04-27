@@ -3,14 +3,16 @@
 <mapper namespace="com.example.mapper.SaleDataMapper">
 
     <select id="selectJyQuantitySalesVolume" resultType="com.example.entity.vo.QuantitySalesVolume">
-        SELECT
-        SUM(sum_quantity_jy) AS quantity,
-        SUM(sum_cost_amount_jy) AS cost,
-        SUM(sum_amount_jy) AS salesVolume,
-        (SUM(sum_amount_jy)-SUM(sum_cost_amount_jy)) AS profit
-        FROM
-            trs_sal_saledtl_jh_2022
-        WHERE customer_name = #{shopName}
+        select
+            (a.`当月销售数量`+b.`当月销售数量条`) as quantity ,(a.`当前月销售额`+b.`当前月销售额条`) as salesVolume,(a.`当前月成本`+b.`当前月成本条`)as cost,(a.`当前月利润`+b.`当前月利润条`) as profit
+        from (SELECT
+                  SUM(quantity)/10 as 当月销售数量 ,
+                  SUM(cost_amount) AS 当前月成本,
+                  SUM(amount) AS 当前月销售额,
+                  (SUM(amount)-SUM(cost_amount)) AS 当前月利润
+              FROM
+                  trs_sal_saledtl_jh_pa
+              WHERE is_tobacco= 1
         <if test="type == 1">
             AND YEAR(sale_time) = YEAR(#{time}) AND MONTH(sale_time) = MONTH(#{time})
         </if>
@@ -18,31 +20,85 @@
             AND YEAR(sale_time) = YEAR(#{time})
         </if>
         <if test="type == 3">
-            AND YEAR(sale_time) = YEAR(#{time})-1
+            AND YEAR(sale_time) = YEAR(#{time})-1 AND MONTH(sale_time) = MONTH(#{time})
+        </if> AND customer_name = #{shopName}
+    and unit_name='包') a ,
+    (SELECT
+            SUM(quantity) as 当月销售数量条 ,
+            SUM(cost_amount) AS 当前月成本条,
+            SUM(amount) AS 当前月销售额条,
+            (SUM(amount)-SUM(cost_amount)) AS 当前月利润条
+        FROM
+            trs_sal_saledtl_jh_pa
+        WHERE is_tobacco= 1
+        <if test="type == 1">
+            AND YEAR(sale_time) = YEAR(#{time}) AND MONTH(sale_time) = MONTH(#{time})
         </if>
+        <if test="type == 2">
+            AND YEAR(sale_time) = YEAR(#{time})
+        </if>
+        <if test="type == 3">
+            AND YEAR(sale_time) = YEAR(#{time})-1 AND MONTH(sale_time) = MONTH(#{time})
+        </if> AND customer_name =  #{shopName}
+          and unit_name='条') b
     </select>
 
     <select id="selectJyAvgQuantitySalesVolume" resultType="com.example.entity.vo.QuantitySalesVolume">
         SELECT
-            AVG(sum_quantity_jy) AS quantity,
-            AVG(sum_cost_amount_jy) AS cost,
-            AVG(sum_amount_jy) AS salesVolume,
-            (AVG(sum_amount_jy)-AVG(sum_cost_amount_jy)) AS profit
+            cust_type_name,
+            allsum,
+            xssumall,
+            cbsumall,
+            sl ,
+            allsum/sl  as quantity,
+            xssumall/sl as salesVolume,
+            cbsumall/sl as cost,
+            (xssumall-cbsumall)/sl as profit
         FROM
-            trs_sal_saledtl_jh_2022
-        WHERE
-            customer_name = #{shopName}
+            (
+                SELECT
+                    cust_type_name,
+                    COUNT(sl) AS sl,
+                    sum(allsum) AS allsum,
+                    sum(xssumall) AS xssumall,
+                    sum(cbsumall) AS cbsumall
+                FROM
+                    (
+                        SELECT
+                            customer_code,
+                            customer_name,
+                            cust_type_name,
+                            count(customer_code) AS sl,
+                            sum(amount) AS xssumall,
+                            sum(cost_amount) AS cbsumall,
+                            case when unit_name='包' then sum(quantity/10) else SUM(quantity) end AS allsum
+-- unit_name
+                        FROM `trs_sal_saledtl_jh_pa` where YEAR(sale_time) = YEAR(#{time}) AND MONTH(sale_time) = MONTH(#{time})
+                                                       AND is_tobacco = 1
+                                                       AND cust_type_name = #{typeName}
+                                                       AND unit_name IN ('条','包')
+-- AND customer_name = '磐安县晶营副食店'
+                        GROUP BY
+                            customer_code,
+                            customer_name,
+                            cust_type_name
+-- ,unit_name
+                        ORDER BY cust_type_name
+                    ) t  GROUP BY cust_type_name
+            ) d
+
     </select>
 
     <select id="selectFyQuantitySalesVolume" resultType="com.example.entity.vo.QuantitySalesVolume">
         SELECT
-        SUM(sum_quantity_fy) AS quantity,
-        SUM(sum_cost_amount_fy) AS cost,
-        SUM(sum_amount_fy) AS salesVolume,
-        (SUM(sum_amount_fy)-SUM(sum_cost_amount_fy)) AS profit
+        Sum(quantity) AS quantity,
+        SUM(cost_amount) AS cost,
+        SUM(amount) AS salesVolume,
+        (SUM(amount)-SUM(cost_amount)) AS profit
         FROM
-        trs_sal_saledtl_jh_2022
-        WHERE customer_name = #{shopName}
+        trs_sal_saledtl_jh_pa
+        WHERE
+        is_tobacco= 0
         <if test="type == 1">
             AND YEAR(sale_time) = YEAR(#{time}) AND MONTH(sale_time) = MONTH(#{time})
         </if>
@@ -51,71 +107,182 @@
         </if>
         <if test="type == 3">
             AND YEAR(sale_time) = YEAR(#{time})-1
-        </if>
+        </if> AND customer_name =  #{shopName} AND goods_name not in ('临时商品')
     </select>
 
 
     <select id="selectFyAvgQuantitySalesVolume" resultType="com.example.entity.vo.QuantitySalesVolume">
         SELECT
-            AVG(sum_quantity_fy) AS quantity,
-            AVG(sum_cost_amount_fy) AS cost,
-            AVG(sum_amount_fy) AS salesVolume,
-            (AVG(sum_amount_fy)-AVG(sum_cost_amount_fy)) AS profit
+            cust_type_name,
+            allsum,
+            xssumall,
+            cbsumall,
+            sl,
+            allsum/sl  as quantity,
+            xssumall/sl  as salesVolume,
+            cbsumall/sl  as cost,
+            (xssumall-cbsumall)/sl  as profit
         FROM
-            trs_sal_saledtl_jh_2022
-        WHERE
-            customer_name = #{shopName}
+            (
+                SELECT
+                    cust_type_name,
+                    COUNT(sl) AS sl,
+                    sum(allsum) AS allsum,
+                    sum(xssumall) AS xssumall,
+                    sum(cbsumall) AS cbsumall
+                FROM
+                    (
+                        SELECT
+                            customer_code,
+                            customer_name,
+                            cust_type_name,
+                            count(customer_code) AS sl,
+                            sum(amount) AS xssumall,
+                            sum(cost_amount) AS cbsumall,
+                            SUM(quantity) AS allsum
+                        FROM trs_sal_saledtl_jh_pa
+                        where  YEAR(sale_time) = YEAR(#{time}) AND MONTH(sale_time) = MONTH(#{time})
+                          AND is_tobacco = 0
+                          AND cust_type_name = #{typeName}
+                        GROUP BY
+                            customer_code,
+                            customer_name,
+                            cust_type_name ORDER BY cust_type_name
+                    ) t  GROUP BY cust_type_name
+            ) t2
+    </select>
+
+    <select id="selectNextMonthAmount" resultType="java.lang.Double">
+        SELECT SUM(cost_amount)
+        FROM `trs_sal_saledtl_jh_pa`
+        WHERE YEAR(sale_time) = YEAR(#{time}- INTERVAL 1 YEAR)
+          AND MONTH(sale_time) = MONTH(#{time} - INTERVAL 1 YEAR) + 1
+          AND  customer_name =  #{shopName} AND is_tobacco= #{type}
     </select>
 
 
-
-    <select id="selectNextMonthAmount" resultType="com.example.entity.vo.NextMonthAmount">
-        SELECT SUM(sum_cost_amount_jy) AS nextMonthJyAmount,SUM(sum_cost_amount_fy) AS nextMonthFyAmount
-        FROM trs_sal_saledtl_jh_2022
-        WHERE customer_name = #{shopName} AND YEAR(sale_time) = YEAR(#{time} - INTERVAL 1 YEAR)
+    <select id="selectProfit" resultType="java.lang.Double">
+        SELECT SUM(amount)-SUM(cost_amount)
+        FROM `trs_sal_saledtl_jh_pa`
+        WHERE YEAR(sale_time) = YEAR(#{time} - INTERVAL 1 YEAR)
           AND MONTH(sale_time) = MONTH(#{time} - INTERVAL 1 YEAR) + 1
-    </select>
-
-
-    <select id="selectProfit" resultType="com.example.entity.vo.Profit">
-        SELECT SUM(sum_amount_jy - sum_cost_amount_jy) AS jyProfit,SUM(sum_amount_fy - sum_cost_amount_fy) AS fyProfit
-        FROM trs_sal_saledtl_jh_2022
-        WHERE  customer_name = #{shopName} AND YEAR(sale_time) = YEAR(#{time} - INTERVAL 1 YEAR)
-          AND MONTH(sale_time) = MONTH(#{time} - INTERVAL 1 YEAR) + 1
+          AND  customer_name =  #{shopName} and is_tobacco= #{type}
     </select>
 
     <select id="selectShopMonthData" resultType="com.example.entity.vo.ShopMonthData">
-        SELECT biz_month as shopMonth,SUM(sum_quantity_jy) as jyAmount,ROUND(SUM(sum_cost_amount_jy
-            ),2) as jyCost,ROUND(SUM(sum_amount_jy)-SUM(sum_cost_amount_jy),2
-            ) as jyGrossProfit,SUM(sum_quantity_fy) as fyAmount,ROUND(SUM(sum_cost_amount_fy
-            ),2) as fyCost,ROUND(SUM(sum_amount_fy)-SUM(sum_cost_amount_fy),2
-            ) as fyGrossProfit FROM trs_sal_saledtl_jh_2022 WHERE customer_name = #{shopName}  GROUP BY biz_month ORDER BY biz_month asc
+        SELECT
+            biz_month as shopMonth,
+                ROUND(SUM(quantity2),2) as amount,
+                ROUND(SUM(cost_amount),2) as cost,
+                ROUND(SUM(amount)-SUM(cost_amount),2) as grossProfit
+        FROM
+            (
+                select customer_name,biz_month,quantity,cost_amount,amount,is_tobacco,unit_name,
+                       case when unit_name='包' then quantity/10 else quantity end as quantity2 from trs_sal_saledtl_jh_pa
+                WHERE customer_name = #{shopName}  and is_tobacco= #{type}
+                  and unit_name in ('包','条')
+            ) t
+        GROUP BY biz_month
     </select>
 
     <select id="selectFyZFPurchaseReminder" resultType="com.example.entity.vo.PurchaseReminder">
-        SELECT goods_name as goodName,dysl,sysl,CONCAT(ROUND(((dysl-sysl)/sysl)*100,2),'%') as fd
-        from (
-                 SELECT goods_name,(SELECT sum(quantity) FROM trs_sal_saledtl_jh_2022 as a WHERE a.goods_name=b.goods_name AND is_tobacco=0 AND MONTH(sale_time) = MONTH(#{time}) ) as dysl,
-    sum(quantity) AS sysl
-        FROM trs_sal_saledtl_jh_2022 as b
-        WHERE customer_name = #{shopName}
-          AND MONTH(sale_time) = MONTH(#{time} - INTERVAL 1 MONTH) AND is_tobacco=0
-        GROUP BY goods_name
-            ) as t ORDER BY (ROUND(((dysl-sysl)/sysl)*100,2)) desc
+        SELECT
+            goods_name1 as goodName,
+            sl4,
+            sl5,
+            s as fd
+        FROM (SELECT
+                    TEMP1.goods_name AS goods_name1,
+                    TEMP2.goods_name AS goods_name2,
+                    sl4,
+                    sl5,
+                    CONCAT( ROUND((( sl5 - sl4 )/ sl4 )* 100, 2 ), '%' ) AS s
+                FROM (SELECT
+                            b.goods_name,
+                            sum(b.quantity) AS sl4
+                        FROM
+                            `trs_sal_saledtl_jh_pa` AS b
+                        WHERE
+                                    b.customer_name =  #{shopName}
+                                AND MONTH (b.sale_time) = MONTH (#{time})
+AND YEAR(b.sale_time) = YEAR(#{time} - INTERVAL 1 YEAR )
+AND b.goods_name NOT IN ( '自定义', '火', '顺', '一', '意', '發', '万' )
+AND is_tobacco=0
+            GROUP BY
+                    b.goods_name
+            ) TEMP1
+                INNER JOIN (
+                SELECT
+                    goods_name,
+                    sum(quantity) AS sl5
+                FROM
+                    `trs_sal_saledtl_jh_pa`
+                WHERE
+                            customer_name = #{shopName}
+                        AND MONTH(sale_time) = MONTH (#{time} - INTERVAL 1 YEAR ) + 1
+AND YEAR(sale_time) = YEAR (#{time} - INTERVAL 1 YEAR )
+AND goods_name NOT IN ( '自定义', '火', '顺', '一', '意', '發', '万' )
+and is_tobacco=0
+        GROUP BY
+            goods_name
+            ) TEMP2 ON TEMP1.goods_name = TEMP2.goods_name
+            ) t
+        ORDER BY
+            (
+            ROUND((( sl5 - sl4 )/ sl4 )* 100, 2 )) DESC
             LIMIT 10
     </select>
 
 
     <select id="selectFyJFPurchaseReminder" resultType="com.example.entity.vo.PurchaseReminder">
-        SELECT goods_name as goodName,dysl,sysl,CONCAT(ROUND(((dysl-sysl)/sysl)*100,2),'%') as fd
-        from (
-                 SELECT goods_name,(SELECT sum(quantity) FROM trs_sal_saledtl_jh_2022 as a WHERE a.goods_name=b.goods_name AND is_tobacco=0 AND MONTH(sale_time) = MONTH(#{time}) ) as dysl,
-            sum(quantity) AS sysl
-        FROM trs_sal_saledtl_jh_2022 as b
-        WHERE customer_name = #{shopName}
-          AND MONTH(sale_time) = MONTH(#{time} - INTERVAL 1 MONTH) AND is_tobacco=0
-        GROUP BY goods_name
-            ) as t ORDER BY (ROUND(((dysl-sysl)/sysl)*100,2))
+         SELECT
+            goods_name1 as goodName,
+            sl4,
+            sl5,
+            s as fd
+        FROM
+            (
+                SELECT
+                    TEMP1.goods_name AS goods_name1,
+                    TEMP2.goods_name AS goods_name2,
+                    sl4,
+                    sl5,
+                    CONCAT( ROUND((( sl5 - sl4 )/ sl4 )* 100, 2 ), '%' ) AS s
+                FROM
+                    (
+                        SELECT
+                            b.goods_name,
+                            sum(b.quantity) AS sl4
+                        FROM
+                            `trs_sal_saledtl_jh_pa` AS b
+                        WHERE
+                                    b.customer_name = #{shopName}
+                                AND MONTH (b.sale_time) = MONTH (#{time})
+AND YEAR (b.sale_time) = YEAR(#{time} - INTERVAL 1 YEAR )
+AND b.goods_name NOT IN ( '自定义', '火', '顺', '一', '意', '發', '万' )
+ and is_tobacco=0
+                GROUP BY
+                    b.goods_name
+            ) TEMP1
+                INNER JOIN (
+                SELECT
+                    goods_name,
+                    sum(quantity) AS sl5
+                FROM
+                    `trs_sal_saledtl_jh_pa`
+                WHERE
+                    customer_name = #{shopName}
+                        AND MONTH (sale_time) = MONTH (#{time} - INTERVAL 1 YEAR ) + 1
+AND YEAR (sale_time) = YEAR (#{time} - INTERVAL 1 YEAR )
+AND goods_name NOT IN ( '自定义', '火', '顺', '一', '意', '發', '万' )
+and is_tobacco=0
+        GROUP BY
+            goods_name
+            ) TEMP2 ON TEMP1.goods_name = TEMP2.goods_name
+            ) t
+        ORDER BY
+            (
+            ROUND((( sl5 - sl4 )/ sl4 )* 100, 2 )) asc
             LIMIT 10
     </select>
 
@@ -129,7 +296,7 @@
         END AS category,
         SUM(quantity) AS quantity,
         SUM(amount - cost_amount) AS profit
-        FROM `trs_sal_saledtl_jh_2022` WHERE
+        FROM `trs_sal_saledtl_jh_pa` WHERE
         is_tobacco = #{type}
         AND customer_name =  #{shopName}
         GROUP BY goods_name

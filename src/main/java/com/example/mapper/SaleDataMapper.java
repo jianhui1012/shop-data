@@ -12,22 +12,22 @@ public interface SaleDataMapper extends BaseMapper<SaleData> {
     QuantitySalesVolume selectJyQuantitySalesVolume(@Param("type") int type, @Param("shopName") String shopName,
                                                         @Param("time") String time);
 
-    QuantitySalesVolume selectJyAvgQuantitySalesVolume(@Param("shopName") String shopName,
+    QuantitySalesVolume selectJyAvgQuantitySalesVolume(@Param("shopName") String shopName,@Param("typeName") String typeName,
                                                   @Param("time") String time);
 
     QuantitySalesVolume selectFyQuantitySalesVolume(@Param("type") int type, @Param("shopName") String shopName,
                                                     @Param("time") String time);
 
-    QuantitySalesVolume selectFyAvgQuantitySalesVolume(@Param("shopName") String shopName,
+    QuantitySalesVolume selectFyAvgQuantitySalesVolume(@Param("shopName") String shopName,@Param("typeName") String typeName,
                                                        @Param("time") String time);
 
-    NextMonthAmount selectNextMonthAmount(@Param("shopName") String shopName,
-                                          @Param("time") String time);
+    Double selectNextMonthAmount(@Param("shopName") String shopName,
+                                          @Param("time") String time, @Param("type") int type);
 
-    Profit selectProfit(@Param("shopName") String shopName,
-                        @Param("time") String time);
+    Double selectProfit(@Param("shopName") String shopName,
+                        @Param("time") String time, @Param("type") int type);
 
-    List<ShopMonthData> selectShopMonthData(@Param("shopName") String shopName);
+    List<ShopMonthData> selectShopMonthData(@Param("shopName") String shopName, @Param("type") int type);
 
 
     List<PurchaseReminder> selectFyZFPurchaseReminder(@Param("shopName") String shopName, @Param("time") String time);

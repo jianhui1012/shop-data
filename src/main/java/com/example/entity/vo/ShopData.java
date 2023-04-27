@@ -21,7 +21,10 @@ public class ShopData {
     private ShopQSVData shopQSVData;
 
     @ApiModelProperty(value = "查询店铺按月份找出卷烟销售数量、成本、毛利（卷烟量本利）")
-    private List<ShopMonthData> shopMonthDataList;
+    private List<ShopMonthData> shopMonthJyDataList;
+
+    @ApiModelProperty(value = "查询店铺按月份找出非烟销售数量、成本、毛利（卷烟量本利）")
+    private List<ShopMonthData> shopMonthFyDataList;
 
     @ApiModelProperty(value = "查询店铺非烟进货提醒表的增幅")
     private List<PurchaseReminder> zfPurchaseReminder;

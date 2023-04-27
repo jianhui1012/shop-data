@@ -46,11 +46,12 @@ public class SaleDataController {
     @ApiOperation(value = "查询店铺平均的的数量、成本、销售额接口")
     @GetMapping(value = "/selectAvgQuantitySalesVolume")
     public Result<QuantitySalesVolume> selectAvgQuantitySalesVolume(@ApiParam(value = "店铺名称") @RequestParam String shopName,
-                                                                    @ApiParam(value = "查询的时间 不传或者为空的话默认是当前时间") @RequestParam(required = false) String time) {
+                                                                    @ApiParam(value = "查询的时间 不传或者为空的话默认是当前时间") @RequestParam(required = false) String time,
+    @ApiParam(value = "档位") String typeName) {
         if (StrUtil.isEmpty(time)) {
             time = DateUtil.now();
         }
-        return Result.success(saleDataService.selectJyAvgQuantitySalesVolume(shopName, time));
+        return Result.success(saleDataService.selectJyAvgQuantitySalesVolume(shopName, time,typeName));
     }
 
     @ApiOperation(value = "查询店铺下个月的进货资金接口")
@@ -76,7 +77,7 @@ public class SaleDataController {
     @ApiOperation(value = "查询店铺按月份找出卷烟销售数量、成本、毛利（卷烟量本利）", response = ShopMonthData.class)
     @GetMapping(value = "/selectShopMonthData")
     public Result<List<ShopMonthData>> selectShopMonthData(@ApiParam(value = "店铺名称") @RequestParam String shopName) {
-        return Result.success(saleDataService.selectShopMonthData(shopName));
+        return Result.success(saleDataService.selectShopMonthData(shopName,1));
     }
 
     @ApiOperation(value = "查询店铺非烟进货提醒表的增幅")
@@ -98,7 +99,7 @@ public class SaleDataController {
     @ApiOperation(value = "查询店铺分析数据(整合了所有数据)")
     @GetMapping(value = "/selectShopData")
     public Result<ShopData> selectShopData(@ApiParam(value = "店铺名称") @RequestParam String shopName,
-                                           @ApiParam(value = "查询的时间 不传或者为空的话默认是当前时间") @RequestParam(required = false) String time) {
+                                           @ApiParam(value = "查询的时间 不传或者为空的话默认是当前时间") @RequestParam(required = false) String time,@ApiParam(value = "档位") @RequestParam String typeName) {
         ShopData shopData = new ShopData();
         if (StrUtil.isEmpty(time)) {
             time = DateUtil.now();
@@ -111,7 +112,7 @@ public class SaleDataController {
         jyQSVList.add(saleDataService.selectJyQuantitySalesVolume(1, shopName, time));
         jyQSVList.add(saleDataService.selectJyQuantitySalesVolume(2, shopName, time));
         jyQSVList.add(saleDataService.selectJyQuantitySalesVolume(3, shopName, time));
-        jyQSVList.add(saleDataService.selectJyAvgQuantitySalesVolume(shopName, time));
+        jyQSVList.add(saleDataService.selectJyAvgQuantitySalesVolume(shopName, time,typeName));
         //卷烟数据
         jyQsvData.setQsvList(jyQSVList);
         jyQsvData.setNextMonthAmount(nextMonthAmount.getNextMonthJyAmount());
@@ -122,7 +123,7 @@ public class SaleDataController {
         fyQSVList.add(saleDataService.selectFyQuantitySalesVolume(1, shopName, time));
         fyQSVList.add(saleDataService.selectFyQuantitySalesVolume(2, shopName, time));
         fyQSVList.add(saleDataService.selectFyQuantitySalesVolume(3, shopName, time));
-        fyQSVList.add(saleDataService.selectFyAvgQuantitySalesVolume(shopName, time));
+        fyQSVList.add(saleDataService.selectFyAvgQuantitySalesVolume(shopName, time,typeName));
         //非烟数据
         fyQsvData.setQsvList(fyQSVList);
         fyQsvData.setNextMonthAmount(nextMonthAmount.getNextMonthFyAmount());
@@ -132,7 +133,9 @@ public class SaleDataController {
         shopQSVData.setFyQSVData(fyQsvData);
         shopData.setShopQSVData(shopQSVData);
 
-        shopData.setShopMonthDataList(saleDataService.selectShopMonthData(shopName));
+        shopData.setShopMonthJyDataList(saleDataService.selectShopMonthData(shopName,1));
+        shopData.setShopMonthFyDataList(saleDataService.selectShopMonthData(shopName,0));
+
         shopData.setZfPurchaseReminder(saleDataService.selectFyZFPurchaseReminder(shopName, time));
         shopData.setJfPurchaseReminder(saleDataService.selectFyJFPurchaseReminder(shopName, time));
         //卷烟

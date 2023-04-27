@@ -1,11 +1,9 @@
 package com.example.service;
 
-import cn.hutool.core.collection.ListUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.SaleData;
 import com.example.entity.vo.*;
 import com.example.mapper.SaleDataMapper;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -21,48 +19,64 @@ public class SaleDataService extends ServiceImpl<SaleDataMapper, SaleData> {
     private SaleDataMapper saleDataMapper;
 
     public QuantitySalesVolume selectJyQuantitySalesVolume(int type, String shopName, String time) {
-        return saleDataMapper.selectJyQuantitySalesVolume(type,shopName,time);
+        return saleDataMapper.selectJyQuantitySalesVolume(type, shopName, time);
     }
 
-    public QuantitySalesVolume selectJyAvgQuantitySalesVolume(String shopName, String time) {
-        return saleDataMapper.selectJyAvgQuantitySalesVolume(shopName,time);
+    public QuantitySalesVolume selectJyAvgQuantitySalesVolume(String shopName, String time, String typeName) {
+        return saleDataMapper.selectJyAvgQuantitySalesVolume(shopName, time, typeName);
     }
 
     public QuantitySalesVolume selectFyQuantitySalesVolume(int type, String shopName, String time) {
-        return saleDataMapper.selectFyQuantitySalesVolume(type,shopName,time);
+        return saleDataMapper.selectFyQuantitySalesVolume(type, shopName, time);
     }
 
-    public QuantitySalesVolume selectFyAvgQuantitySalesVolume(String shopName, String time) {
-        return saleDataMapper.selectFyAvgQuantitySalesVolume(shopName,time);
+    public QuantitySalesVolume selectFyAvgQuantitySalesVolume(String shopName, String time, String typeName) {
+        return saleDataMapper.selectFyAvgQuantitySalesVolume(shopName, time, typeName);
     }
 
     public NextMonthAmount selectNextMonthAmount(String shopName, String time) {
-        return saleDataMapper.selectNextMonthAmount(shopName,time);
+        NextMonthAmount nextMonthAmount = new NextMonthAmount();
+        Double double1 = saleDataMapper.selectNextMonthAmount(shopName, time, 1);
+        Double double2 = saleDataMapper.selectNextMonthAmount(shopName, time, 0);
+        double jy = double1==null?0:double1;
+        double fy = double2==null?0:double2;
+        nextMonthAmount.setNextMonthJyAmount(jy);
+        nextMonthAmount.setNextMonthFyAmount(fy);
+        nextMonthAmount.setNextMonthAmount(jy+fy);
+        return nextMonthAmount;
     }
 
     public Profit selectProfit(String shopName, String time) {
-        return saleDataMapper.selectProfit(shopName,time);
+        Profit profit = new Profit();
+        Double double1 = saleDataMapper.selectProfit(shopName, time, 1);
+        Double double2 = saleDataMapper.selectProfit(shopName, time, 0);
+        double jy = double1==null?0:double1;
+        double fy = double2==null?0:double2;
+        profit.setJyProfit(jy);
+        profit.setFyProfit(fy);
+        profit.setTotalProfit(jy+fy);
+        return profit;
     }
 
-    public  List<ShopMonthData> selectShopMonthData(String shopName) {
-        return saleDataMapper.selectShopMonthData(shopName);
+    public List<ShopMonthData> selectShopMonthData(String shopName, int type) {
+        return saleDataMapper.selectShopMonthData(shopName, type);
     }
 
     public List<PurchaseReminder> selectFyZFPurchaseReminder(String shopName, String time) {
-        return saleDataMapper.selectFyZFPurchaseReminder(shopName,time);
+        return saleDataMapper.selectFyZFPurchaseReminder(shopName, time);
     }
 
 
     public List<PurchaseReminder> selectFyJFPurchaseReminder(String shopName, String time) {
-        return saleDataMapper.selectFyJFPurchaseReminder(shopName,time);
+        return saleDataMapper.selectFyJFPurchaseReminder(shopName, time);
     }
 
-    public List<SaleSuggestionResp> selectSaleSuggestion(String shopName, int type){
-        List<SaleSuggestion>  saleSuggestions = saleDataMapper.selectSaleSuggestion(shopName,type);
+    public List<SaleSuggestionResp> selectSaleSuggestion(String shopName, int type) {
+        List<SaleSuggestion> saleSuggestions = saleDataMapper.selectSaleSuggestion(shopName, type);
         Map<String, List<SaleSuggestion>> groupByUserNameMap = saleSuggestions.stream().collect(Collectors.groupingBy(SaleSuggestion::getCategory));
         List<SaleSuggestionResp> saleSuggestionResps = new ArrayList<>();
         SaleSuggestionResp saleSuggestionResp;
-        for (String key:groupByUserNameMap.keySet()){
+        for (String key : groupByUserNameMap.keySet()) {
             saleSuggestionResp = new SaleSuggestionResp();
             saleSuggestionResp.setName(key);
             saleSuggestionResp.setSaleSuggestionList(groupByUserNameMap.get(key));

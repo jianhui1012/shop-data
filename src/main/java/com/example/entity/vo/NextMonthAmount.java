@@ -15,7 +15,9 @@ import lombok.Data;
 public class NextMonthAmount {
 
     @ApiModelProperty(value = "下个月卷烟的进货资金")
-    private double nextMonthJyAmount;
+    private Double nextMonthJyAmount;
     @ApiModelProperty(value = "下个月非烟的进货资金")
-    private double nextMonthFyAmount;
+    private Double nextMonthFyAmount;
+    @ApiModelProperty(value = "下个月进货资金")
+    private Double nextMonthAmount;
 }

@@ -16,8 +16,8 @@ public class PurchaseReminder {
 
     @ApiModelProperty(value = "商品名称")
     private String goodName;
-    private int dysl;
-    private int sysl;
+    private int sl4;
+    private int sl5;
     @ApiModelProperty(value = "增幅数据")
     private String fd;
 

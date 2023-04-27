@@ -15,8 +15,11 @@ import lombok.Data;
 public class Profit {
 
     @ApiModelProperty(value = "查询店铺卷烟预计产生的利润")
-    private double jyProfit;
+    private Double jyProfit;
 
     @ApiModelProperty(value = "查询店铺非烟预计产生的利润")
-    private double fyProfit;
+    private Double fyProfit;
+
+    @ApiModelProperty(value = "查询店铺预计产生的利润")
+    private Double totalProfit;
 }
