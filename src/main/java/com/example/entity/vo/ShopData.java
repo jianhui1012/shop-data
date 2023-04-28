@@ -35,4 +35,7 @@ public class ShopData {
     private List<SaleSuggestionResp> saleJySuggestions;
 
     private List<SaleSuggestionResp> saleFySuggestions;
+
+    @ApiModelProperty(value = "查询店铺商品组合销售的次数")
+    private List<CombinationBean> combinationBeans;
 }

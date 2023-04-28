@@ -38,11 +38,11 @@ public class SaleDataService extends ServiceImpl<SaleDataMapper, SaleData> {
         NextMonthAmount nextMonthAmount = new NextMonthAmount();
         Double double1 = saleDataMapper.selectNextMonthAmount(shopName, time, 1);
         Double double2 = saleDataMapper.selectNextMonthAmount(shopName, time, 0);
-        double jy = double1==null?0:double1;
-        double fy = double2==null?0:double2;
+        double jy = double1 == null ? 0 : double1;
+        double fy = double2 == null ? 0 : double2;
         nextMonthAmount.setNextMonthJyAmount(jy);
         nextMonthAmount.setNextMonthFyAmount(fy);
-        nextMonthAmount.setNextMonthAmount(jy+fy);
+        nextMonthAmount.setNextMonthAmount(jy + fy);
         return nextMonthAmount;
     }
 
@@ -50,15 +50,18 @@ public class SaleDataService extends ServiceImpl<SaleDataMapper, SaleData> {
         Profit profit = new Profit();
         Double double1 = saleDataMapper.selectProfit(shopName, time, 1);
         Double double2 = saleDataMapper.selectProfit(shopName, time, 0);
-        double jy = double1==null?0:double1;
-        double fy = double2==null?0:double2;
+        double jy = double1 == null ? 0 : double1;
+        double fy = double2 == null ? 0 : double2;
         profit.setJyProfit(jy);
         profit.setFyProfit(fy);
-        profit.setTotalProfit(jy+fy);
+        profit.setTotalProfit(jy + fy);
         return profit;
     }
 
     public List<ShopMonthData> selectShopMonthData(String shopName, int type) {
+        if (type == 1) {
+            return saleDataMapper.selectShopMonthJyData(shopName, type);
+        }
         return saleDataMapper.selectShopMonthData(shopName, type);
     }
 
@@ -79,11 +82,28 @@ public class SaleDataService extends ServiceImpl<SaleDataMapper, SaleData> {
         for (String key : groupByUserNameMap.keySet()) {
             saleSuggestionResp = new SaleSuggestionResp();
             saleSuggestionResp.setName(key);
-            saleSuggestionResp.setSaleSuggestionList(groupByUserNameMap.get(key));
+            List<SaleSuggestion> saleList = groupByUserNameMap.get(key);
+            if (saleList != null && saleList.size() > 5) {
+                saleList = saleList.subList(0, 5);
+            }
+            saleSuggestionResp.setSaleSuggestionList(saleList);
             saleSuggestionResps.add(saleSuggestionResp);
         }
         return saleSuggestionResps;
     }
 
-
+    public List<CombinationBean> selectCombinationList(String shopName, String time) {
+        //saleDataMapper.selectCombinationList(shopName, time);
+        List<CombinationBean> combinationBeans = new ArrayList<>();
+        CombinationBean combinationBean;
+        for (int i = 0; i < 10; i++) {
+            combinationBean = new CombinationBean();
+            combinationBean.setJyGoodName("芙蓉王(硬)");
+            combinationBean.setFyGoodName1("李子园果蔬酸奶饮品");
+            combinationBean.setFyGoodName2("农夫山泉天然饮用水2L");
+            combinationBean.setFyGoodName3("好劲道老坛酸菜");
+            combinationBeans.add(combinationBean);
+        }
+        return combinationBeans;
+    }
 }

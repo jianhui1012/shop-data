@@ -27,12 +27,15 @@ public interface SaleDataMapper extends BaseMapper<SaleData> {
     Double selectProfit(@Param("shopName") String shopName,
                         @Param("time") String time, @Param("type") int type);
 
-    List<ShopMonthData> selectShopMonthData(@Param("shopName") String shopName, @Param("type") int type);
+    List<ShopMonthData> selectShopMonthJyData(@Param("shopName") String shopName, @Param("type") int type);
 
+    List<ShopMonthData> selectShopMonthData(@Param("shopName") String shopName, @Param("type") int type);
 
     List<PurchaseReminder> selectFyZFPurchaseReminder(@Param("shopName") String shopName, @Param("time") String time);
 
     List<PurchaseReminder> selectFyJFPurchaseReminder(@Param("shopName") String shopName, @Param("time") String time);
 
     List<SaleSuggestion> selectSaleSuggestion(@Param("shopName") String shopName, @Param("type") int type);
+
+    List<SaleSuggestion> selectCombinationList(@Param("shopName") String shopName, @Param("time") String time);
 }

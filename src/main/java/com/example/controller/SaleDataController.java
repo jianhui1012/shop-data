@@ -142,6 +142,7 @@ public class SaleDataController {
         shopData.setSaleJySuggestions(saleDataService.selectSaleSuggestion(shopName,1));
         //非烟
         shopData.setSaleFySuggestions(saleDataService.selectSaleSuggestion(shopName,0));
+        shopData.setCombinationBeans(saleDataService.selectCombinationList(shopName,time));
         return Result.success(shopData);
     }
 }

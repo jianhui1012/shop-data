@@ -169,7 +169,7 @@
           AND  customer_name =  #{shopName} and is_tobacco= #{type}
     </select>
 
-    <select id="selectShopMonthData" resultType="com.example.entity.vo.ShopMonthData">
+    <select id="selectShopMonthJyData" resultType="com.example.entity.vo.ShopMonthData">
         SELECT
             biz_month as shopMonth,
                 ROUND(SUM(quantity2),2) as amount,
@@ -179,9 +179,20 @@
             (
                 select customer_name,biz_month,quantity,cost_amount,amount,is_tobacco,unit_name,
                        case when unit_name='包' then quantity/10 else quantity end as quantity2 from trs_sal_saledtl_jh_pa
-                WHERE customer_name = #{shopName}  and is_tobacco= #{type}
+                WHERE customer_name = #{shopName}  and is_tobacco= 1
                   and unit_name in ('包','条')
             ) t
+        GROUP BY biz_month
+    </select>
+
+    <select id="selectShopMonthData" resultType="com.example.entity.vo.ShopMonthData">
+        SELECT
+            biz_month as shopMonth,
+                ROUND(SUM(quantity),2) as amount,
+                ROUND(SUM(cost_amount),2) as cost,
+                ROUND(SUM(amount)-SUM(cost_amount),2) as grossProfit
+        FROM `trs_sal_saledtl_jh_pa`
+        WHERE customer_name = #{shopName}  and is_tobacco=0
         GROUP BY biz_month
     </select>
 
@@ -301,6 +312,14 @@ and is_tobacco=0
         AND customer_name =  #{shopName}
         GROUP BY goods_name
         ORDER BY profit DESC
+    </select>
+
+    <select id="selectCombinationList" resultType="com.example.entity.vo.SaleSuggestion">
+        SELECT bill_code as billCode,count(*) as sumCount  FROM `trs_sal_saledtl_jh_pa`
+        WHERE customer_name =  #{shopName} AND is_tobacco = 1 AND
+        YEAR(sale_time) = YEAR(#{time}) AND MONTH(sale_time) = MONTH(#{time})-1
+        group by bill_code
+        order by sumCount desc
     </select>
 
 </mapper>
