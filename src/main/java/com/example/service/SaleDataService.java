@@ -27,7 +27,7 @@ public class SaleDataService extends ServiceImpl<SaleDataMapper, SaleData> {
     }
 
     public QuantitySalesVolume selectJyAvgQuantitySalesVolume(String shopName, String time, String typeName) {
-        return saleDataMapper.selectJyAvgQuantitySalesVolume(shopName, time, typeName);
+        return saleDataMapper.selectJyAvgQuantitySalesVolume(shopName,typeName,time);
     }
 
     public QuantitySalesVolume selectFyQuantitySalesVolume(int type, String shopName, String time) {
@@ -35,7 +35,7 @@ public class SaleDataService extends ServiceImpl<SaleDataMapper, SaleData> {
     }
 
     public QuantitySalesVolume selectFyAvgQuantitySalesVolume(String shopName, String time, String typeName) {
-        return saleDataMapper.selectFyAvgQuantitySalesVolume(shopName, time, typeName);
+        return saleDataMapper.selectFyAvgQuantitySalesVolume(shopName, typeName,time);
     }
 
     public NextMonthAmount selectNextMonthAmount(String shopName, String time) {
@@ -97,7 +97,7 @@ public class SaleDataService extends ServiceImpl<SaleDataMapper, SaleData> {
     }
 
     public List<CombinationBean> selectCombinationList(String shopName, String time) {
-        List<BillCodeBean> billCodeBeans = saleDataMapper.selectCombinationList(shopName, time);
+        List<BillCodeBean> billCodeBeans = saleDataMapper.selectCombinationList(shopName, time).stream().limit(50L).collect(Collectors.toList());
         HashMap<String, Integer> hashMap = new HashMap<>();
         StrBuilder goodTag;
         for (BillCodeBean billCodeBean : billCodeBeans) {
