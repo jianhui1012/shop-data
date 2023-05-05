@@ -35,7 +35,9 @@ public interface SaleDataMapper extends BaseMapper<SaleData> {
 
     List<PurchaseReminder> selectFyJFPurchaseReminder(@Param("shopName") String shopName, @Param("time") String time);
 
-    List<SaleSuggestion> selectSaleSuggestion(@Param("shopName") String shopName, @Param("type") int type);
+    List<SaleSuggestion> selectFySaleSuggestion(@Param("shopName") String shopName, @Param("type") int type);
+
+    List<SaleSuggestion> selectJySaleSuggestion(@Param("shopName") String shopName, @Param("type") int type);
 
     List<BillCodeBean> selectCombinationList(@Param("shopName") String shopName, @Param("time") String time);
 }

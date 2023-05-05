@@ -1,7 +1,10 @@
 package com.example.service;
 
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.text.StrBuilder;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.toolkit.BeanUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.SaleData;
@@ -10,10 +13,7 @@ import com.example.mapper.SaleDataMapper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -79,7 +79,12 @@ public class SaleDataService extends ServiceImpl<SaleDataMapper, SaleData> {
     }
 
     public List<SaleSuggestionResp> selectSaleSuggestion(String shopName, int type) {
-        List<SaleSuggestion> saleSuggestions = saleDataMapper.selectSaleSuggestion(shopName, type);
+        List<SaleSuggestion>  saleSuggestions;
+        if(type==1){
+            saleSuggestions = saleDataMapper.selectJySaleSuggestion(shopName, type);
+        }else {
+            saleSuggestions = saleDataMapper.selectFySaleSuggestion(shopName, type);
+        }
         Map<String, List<SaleSuggestion>> groupByUserNameMap = saleSuggestions.stream().collect(Collectors.groupingBy(SaleSuggestion::getCategory));
         List<SaleSuggestionResp> saleSuggestionResps = new ArrayList<>();
         SaleSuggestionResp saleSuggestionResp;
@@ -97,47 +102,45 @@ public class SaleDataService extends ServiceImpl<SaleDataMapper, SaleData> {
     }
 
     public List<CombinationBean> selectCombinationList(String shopName, String time) {
-        List<BillCodeBean> billCodeBeans = saleDataMapper.selectCombinationList(shopName, time).stream().limit(50L).collect(Collectors.toList());
-        HashMap<String, Integer> hashMap = new HashMap<>();
-        StrBuilder goodTag;
+        List<BillCodeBean> billCodeBeans = saleDataMapper.selectCombinationList(shopName, time);
+        HashMap<String, List<BillCodeBean>> hashMap = new HashMap<>();
         for (BillCodeBean billCodeBean : billCodeBeans) {
             String billCode = billCodeBean.getBillCode();
-            List<SaleData> dataList = saleDataMapper.selectList(Wrappers.<SaleData>lambdaQuery()
-                    .eq(SaleData::getBillCode, billCode).orderByDesc(SaleData::getIsTobacco));
-            if (dataList.size() >= 1) {
-                goodTag = new StrBuilder();
-                for (SaleData saleData : dataList) {
-                    goodTag.append(saleData.getGoodsName()).append(",");
-                }
-                String goodTagStr = goodTag.toString();
-                if (hashMap.containsKey(goodTagStr)) {
-                    int value = hashMap.get(goodTagStr);
-                    hashMap.replace(goodTagStr, value + 1);
-                } else {
-                    hashMap.put(goodTagStr, 1);
-                }
+            if (hashMap.containsKey(billCode)) {
+                List<BillCodeBean> sonList =  hashMap.get(billCode);
+                sonList.add(billCodeBean);
+            }else {
+                List<BillCodeBean> tempList = new ArrayList<>();
+                tempList.add(billCodeBean);
+                hashMap.put(billCode,tempList);
             }
         }
 
         List<CombinationBean> combinationBeans = new ArrayList<>();
-        hashMap.entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue())
-                .forEach(v -> {
-                    String goodTagStr = v.getKey();
-                    if (StrUtil.isNotEmpty(goodTagStr)) {
-                        String[] nameArray = goodTagStr.split(",");
-                        CombinationBean combinationBean = new CombinationBean();
-                        combinationBean.setJyGoodName(nameArray.length  >= 1 ? nameArray[0] : "");
-                        combinationBean.setFyGoodName1(nameArray.length >= 2 ? nameArray[1] : "");
-                        combinationBean.setFyGoodName2(nameArray.length >= 3 ? nameArray[2] : "");
-                        combinationBean.setFyGoodName3(nameArray.length >= 4 ? nameArray[3] : "");
-                        if (combinationBeans.size() < 10) {
-                            combinationBeans.add(combinationBean);
-                        }
-
+        hashMap.forEach((key, value) -> {
+            List<BillCodeBean> billCodeBeans1 = value;
+            Collections.sort(billCodeBeans1);
+            long count1 = billCodeBeans1.stream().filter(v->1 == v.getIsTobacco()).count();
+            long count2 = billCodeBeans1.stream().filter(v->0 == v.getIsTobacco()).count();
+            if(count1>0 && count2>0&&billCodeBeans1.size()>=3){
+                StringBuilder goodTag = new StringBuilder();
+                for (BillCodeBean codeBean : billCodeBeans1) {
+                    goodTag.append(codeBean.getName()).append(",");
+                }
+                String goodTagStr = goodTag.toString();
+                if (StrUtil.isNotEmpty(goodTagStr)) {
+                    String[] nameArray = goodTagStr.split(",");
+                    CombinationBean combinationBean = new CombinationBean();
+                    combinationBean.setJyGoodName(nameArray.length  >= 1 ? nameArray[0] : "");
+                    combinationBean.setFyGoodName1(nameArray.length >= 2 ? nameArray[1] : "");
+                    combinationBean.setFyGoodName2(nameArray.length >= 3 ? nameArray[2] : "");
+                    combinationBean.setFyGoodName3(nameArray.length >= 4 ? nameArray[3] : "");
+                    if (combinationBeans.size() < 10) {
+                        combinationBeans.add(combinationBean);
                     }
-                });
+                }
+            }
+        });
         return combinationBeans;
     }
 }

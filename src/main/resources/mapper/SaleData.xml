@@ -106,7 +106,7 @@
             AND YEAR(sale_time) = YEAR(#{time})
         </if>
         <if test="type == 3">
-            AND YEAR(sale_time) = YEAR(#{time})-1
+            AND YEAR(sale_time) = YEAR(#{time})-1 AND MONTH(sale_time) = MONTH(#{time})
         </if> AND customer_name =  #{shopName} AND goods_name not in ('临时商品')
     </select>
 
@@ -297,12 +297,29 @@ and is_tobacco=0
             LIMIT 10
     </select>
 
-    <select id="selectSaleSuggestion" resultType="com.example.entity.vo.SaleSuggestion">
+    <select id="selectFySaleSuggestion" resultType="com.example.entity.vo.SaleSuggestion">
         SELECT goods_name AS name,
         CASE
-        WHEN SUM(quantity) >= 100 AND SUM(amount - cost_amount) >= 5000 THEN '量多利多'
-        WHEN SUM(quantity) >= 100 AND SUM(amount - cost_amount) &lt; 5000 THEN '量多利少'
-        WHEN SUM(quantity) &lt; 100 AND SUM(amount - cost_amount) >= 5000 THEN '量少利多'
+        WHEN SUM(quantity) >= 50 AND SUM(amount - cost_amount) >= 100 THEN '量多利多'
+        WHEN SUM(quantity) >= 50 AND SUM(amount - cost_amount) &lt; 100 THEN '量多利少'
+        WHEN SUM(quantity) &lt; 50 AND SUM(amount - cost_amount) >= 100 THEN '量少利多'
+        ELSE '量少利少'
+        END AS category,
+        SUM(quantity) AS quantity,
+        SUM(amount - cost_amount) AS profit
+        FROM `trs_sal_saledtl_jh_pa` WHERE
+        is_tobacco = #{type}
+        AND customer_name =  #{shopName}
+        GROUP BY goods_name
+        ORDER BY profit DESC
+    </select>
+
+    <select id="selectJySaleSuggestion" resultType="com.example.entity.vo.SaleSuggestion">
+        SELECT goods_name AS name,
+        CASE
+        WHEN SUM(quantity) >= 200 AND SUM(amount - cost_amount) >= 2000 THEN '量多利多'
+        WHEN SUM(quantity) >= 200 AND SUM(amount - cost_amount) &lt; 2000 THEN '量多利少'
+        WHEN SUM(quantity) &lt; 200 AND SUM(amount - cost_amount) >= 2000 THEN '量少利多'
         ELSE '量少利少'
         END AS category,
         SUM(quantity) AS quantity,
@@ -315,11 +332,9 @@ and is_tobacco=0
     </select>
 
     <select id="selectCombinationList" resultType="com.example.entity.vo.BillCodeBean">
-        SELECT bill_code as billCode,count(*) as sumCount  FROM `trs_sal_saledtl_jh_pa`
-        WHERE customer_name =  #{shopName} AND is_tobacco = 1 AND
-        YEAR(sale_time) = YEAR(#{time}) AND MONTH(sale_time) = MONTH(#{time})-1
-        group by bill_code
-        order by sumCount desc
+        SELECT bill_code as billCode,goods_name as name,is_tobacco as IsTobacco  FROM `trs_sal_saledtl_jh_pa`
+        WHERE customer_name = #{shopName} AND
+        YEAR(sale_time) = YEAR(#{time})
     </select>
 
 </mapper>

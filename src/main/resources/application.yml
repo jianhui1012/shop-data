@@ -3,9 +3,9 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: 123456
-    url: jdbc:mysql://localhost:3306/pa?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2b8
+    username: paroot
+    password: paYC1234*
+    url: jdbc:mysql://10.45.128.235:3306/jhdatabase?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2b8
     type: com.alibaba.druid.pool.DruidDataSource
   #  jpa:
   #    generate-ddl: false

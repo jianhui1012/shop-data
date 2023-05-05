@@ -12,7 +12,13 @@ import lombok.Data;
  * @since 2023/04/28 16/56
  */
 @Data
-public class BillCodeBean {
+public class BillCodeBean implements Comparable<BillCodeBean>{
     private String billCode;
-    private String sumCount;
+    private String name;
+    //1卷烟 0非烟
+    private int IsTobacco;
+    @Override
+    public int compareTo(BillCodeBean codeBean) {
+        return codeBean.getIsTobacco() - this.getIsTobacco();
+    }
 }
