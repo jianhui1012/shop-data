@@ -1,5 +1,8 @@
 package com.example.service;
 
+import cn.hutool.core.text.StrBuilder;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.entity.SaleData;
 import com.example.entity.vo.*;
@@ -8,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -93,17 +97,47 @@ public class SaleDataService extends ServiceImpl<SaleDataMapper, SaleData> {
     }
 
     public List<CombinationBean> selectCombinationList(String shopName, String time) {
-        //saleDataMapper.selectCombinationList(shopName, time);
-        List<CombinationBean> combinationBeans = new ArrayList<>();
-        CombinationBean combinationBean;
-        for (int i = 0; i < 10; i++) {
-            combinationBean = new CombinationBean();
-            combinationBean.setJyGoodName("芙蓉王(硬)");
-            combinationBean.setFyGoodName1("李子园果蔬酸奶饮品");
-            combinationBean.setFyGoodName2("农夫山泉天然饮用水2L");
-            combinationBean.setFyGoodName3("好劲道老坛酸菜");
-            combinationBeans.add(combinationBean);
+        List<BillCodeBean> billCodeBeans = saleDataMapper.selectCombinationList(shopName, time);
+        HashMap<String, Integer> hashMap = new HashMap<>();
+        StrBuilder goodTag;
+        for (BillCodeBean billCodeBean : billCodeBeans) {
+            String billCode = billCodeBean.getBillCode();
+            List<SaleData> dataList = saleDataMapper.selectList(Wrappers.<SaleData>lambdaQuery()
+                    .eq(SaleData::getBillCode, billCode).orderByDesc(SaleData::getIsTobacco));
+            if (dataList.size() >= 1) {
+                goodTag = new StrBuilder();
+                for (SaleData saleData : dataList) {
+                    goodTag.append(saleData.getGoodsName()).append(",");
+                }
+                String goodTagStr = goodTag.toString();
+                if (hashMap.containsKey(goodTagStr)) {
+                    int value = hashMap.get(goodTagStr);
+                    hashMap.replace(goodTagStr, value + 1);
+                } else {
+                    hashMap.put(goodTagStr, 1);
+                }
+            }
         }
+
+        List<CombinationBean> combinationBeans = new ArrayList<>();
+        hashMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .forEach(v -> {
+                    String goodTagStr = v.getKey();
+                    if (StrUtil.isNotEmpty(goodTagStr)) {
+                        String[] nameArray = goodTagStr.split(",");
+                        CombinationBean combinationBean = new CombinationBean();
+                        combinationBean.setJyGoodName(nameArray.length  >= 1 ? nameArray[0] : "");
+                        combinationBean.setFyGoodName1(nameArray.length >= 2 ? nameArray[1] : "");
+                        combinationBean.setFyGoodName2(nameArray.length >= 3 ? nameArray[2] : "");
+                        combinationBean.setFyGoodName3(nameArray.length >= 4 ? nameArray[3] : "");
+                        if (combinationBeans.size() < 10) {
+                            combinationBeans.add(combinationBean);
+                        }
+
+                    }
+                });
         return combinationBeans;
     }
 }

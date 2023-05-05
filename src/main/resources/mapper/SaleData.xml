@@ -314,7 +314,7 @@ and is_tobacco=0
         ORDER BY profit DESC
     </select>
 
-    <select id="selectCombinationList" resultType="com.example.entity.vo.SaleSuggestion">
+    <select id="selectCombinationList" resultType="com.example.entity.vo.BillCodeBean">
         SELECT bill_code as billCode,count(*) as sumCount  FROM `trs_sal_saledtl_jh_pa`
         WHERE customer_name =  #{shopName} AND is_tobacco = 1 AND
         YEAR(sale_time) = YEAR(#{time}) AND MONTH(sale_time) = MONTH(#{time})-1

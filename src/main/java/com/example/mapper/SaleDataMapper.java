@@ -37,5 +37,5 @@ public interface SaleDataMapper extends BaseMapper<SaleData> {
 
     List<SaleSuggestion> selectSaleSuggestion(@Param("shopName") String shopName, @Param("type") int type);
 
-    List<SaleSuggestion> selectCombinationList(@Param("shopName") String shopName, @Param("time") String time);
+    List<BillCodeBean> selectCombinationList(@Param("shopName") String shopName, @Param("time") String time);
 }
